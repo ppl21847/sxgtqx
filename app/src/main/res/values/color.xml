@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="gray_light">#aaaaaa</color>
+    <color name="gray_light2">#222222</color>
+    <color name="black">#000000</color>
+     <color name="white">#ffffff</color>
+    <color name="background_floating_material_dark">#ffaaaaaa</color>
+    <color name="blue_light">#0080ff</color>
+    <color name="albumback">#E1E0DE</color>
+    <color name="none_color">#00000000</color>
+    <color name="txt_gray">#565656</color>
+    <color name="divider_gray">#d7d7d7</color>
+    <color name="red">#ff0000</color>
+    <color name="grenn">#00ff00</color>
+    <color name="dialog_background">#FFFFFF</color>
+    <color name="dialog_text">#181818</color>
+    <color name="dialog_btn">#1E90FF</color>
+    <color name="dialog_divider">#d1d1d1</color>
+    <color name="button_login">#2373e8</color>
+</resources>

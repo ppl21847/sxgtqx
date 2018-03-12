@@ -1,0 +1,13 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="aty_title">24sp</dimen>
+    <dimen name="show_title">20sp</dimen>
+    <dimen name="show_conn">17sp</dimen>
+    <dimen name="tv_line_num">13sp</dimen>
+	<dimen name="tv_line_time">17sp</dimen>
+	<dimen name="tv_line_dist">13sp</dimen>
+	<dimen name="ed_sub_info">15sp</dimen>
+</resources>

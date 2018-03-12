@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/dialog_bg"
+    android:orientation="vertical" >
+    <TextView 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:text="@string/add_level_hint"
+        android:textSize="@dimen/show_title"/>
+    <EditText 
+        android:id="@+id/et_level_conn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="30dp"
+        android:padding="15dp"
+        android:background="@drawable/serch_input_bg"
+        android:hint="@string/input_level_hint"
+        android:textSize="@dimen/tv_line_time"/>
+</LinearLayout>

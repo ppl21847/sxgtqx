@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:background="@color/blue_light"
+        android:orientation="horizontal" >
+
+        <ImageButton
+            android:id="@+id/ib_viewPics_back"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="2dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/icon_nearby_fullpage_back_normal" />
+
+        <TextView
+            android:id="@+id/tv_showPics_descrip"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:textSize="@dimen/aty_title"
+            android:gravity="center"
+            android:text="@string/no_photo"
+            android:textColor="@color/white" />
+
+        <ImageButton
+            android:id="@+id/IB_showImgDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_marginRight="5dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/a4e" />
+    </LinearLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/VP_showPics"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="1dp"
+        android:layout_marginTop="1dp"
+        android:layout_weight="1"
+        android:src="@drawable/file_icon_picture" >
+    </android.support.v4.view.ViewPager>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:paddingBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" 
+        android:background="@color/blue_light">
+
+        <ImageView
+            android:id="@+id/IV_viewPager_isBig"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="15dp"
+            android:background="@drawable/ablum_select_photo_normal" />
+
+        <TextView
+            android:id="@+id/TV_viewPager_isBig"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:text="@string/origImg"
+            android:textColor="@color/white"
+            android:textSize="22sp" />
+
+        <ImageButton
+            android:id="@+id/IB_img_left_retato"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/imgRetatoLeft"
+            android:src="@drawable/rotateleft"
+            android:visibility="invisible" />
+
+        <ImageButton
+            android:id="@+id/IB_img_right_retato"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="30dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/imgRetatoRight"
+            android:src="@drawable/rotateright"
+            android:visibility="invisible" />
+    </LinearLayout>
+
+</LinearLayout>

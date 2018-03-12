@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.ppl.sxgtqx.MainPermissionActivity">
+
+    <Button
+        android:id="@+id/go_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="上传安装包"
+        android:layout_margin="10dp"/>
+
+    <EditText
+        android:id="@+id/tv_apk_url"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="上传安装包的url"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="新安装包的版本号:"/>
+
+        <EditText
+            android:id="@+id/et_new_version"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="新安装包描述:"/>
+
+        <EditText
+            android:id="@+id/et_new_version_des"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/bt_update_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="更新最新安装包信息"
+        android:layout_margin="10dp"/>
+
+    <EditText
+        android:id="@+id/tv_fileId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="上传结果"/>
+
+</LinearLayout>
