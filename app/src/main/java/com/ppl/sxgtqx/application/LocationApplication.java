@@ -9,6 +9,7 @@ import android.os.Vibrator;
 import android.util.Log;
 
 import com.baidu.mapapi.SDKInitializer;
+import com.liulishuo.filedownloader.FileDownloader;
 import com.ppl.sxgtqx.service.LocationService;
 import com.ppl.sxgtqx.utils.LogcatHelper;
 
@@ -43,7 +44,8 @@ public class LocationApplication extends Application {
 		//第一：默认初始化  BMOB初始化
 		Bmob.initialize(getApplicationContext(), "ba27ad9402b3fd4c9495c1b7d1379f48");
 		Log.e("LocationApplication", "Bmob.initialize : end");
-       
+
+		FileDownloader.setupOnApplicationOnCreate(this);
 		initLoginInfo();
     }
     

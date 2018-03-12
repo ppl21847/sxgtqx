@@ -121,6 +121,18 @@
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote" />
+
+        <!--其他的配置项-->
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.ppl.sxgtqx.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+        <!--其他的配置项-->
     </application>
 
 </manifest>

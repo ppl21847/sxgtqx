@@ -1,219 +1,238 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".BNDemoMainActivity" >
+    xmlns:tc="http://schemas.android.com/apk/res-auto">
 
-    <RelativeLayout
+
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/bmapView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" >
+        android:layout_height="match_parent"
+        android:clickable="true" />
 
-        <com.baidu.mapapi.map.MapView
-            android:id="@+id/bmapView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clickable="true" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginTop="11dp"
+        android:orientation="vertical" >
 
         <LinearLayout
+            android:id="@+id/ll_serach"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_marginTop="11dp"
-            android:orientation="vertical" >
+            android:layout_height="50dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/serch_input_bg"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:id="@+id/ll_serach"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:background="@drawable/serch_input_bg"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+            <!-- 设置按钮 -->
 
-                <!-- 设置按钮 -->
+            <ImageButton
+                android:id="@+id/ib_set"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:padding="10dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/icon_usercenter_setting"
+                android:scaleType="centerCrop"/>
 
-                <ImageButton
-                    android:id="@+id/ib_set"
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent"
-                    android:padding="10dp"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/icon_usercenter_setting"
-                    android:scaleType="centerCrop"/>
+            <View
+                android:layout_width="1dp"
+                android:layout_height="30dp"
+                android:background="@color/gray_light" />
 
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="30dp"
-                    android:background="@color/gray_light" />
-
-                <TextView
-                    android:id="@+id/tv_selece_sub"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_weight="1"
-                    android:ellipsize="start"
-                    android:singleLine="true"
-                    android:text="@string/self_pos"
-                    android:textSize="@dimen/tv_line_time" />
-
-                <ImageView
-                    android:id="@+id/iv_down"
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent"
-                    android:padding="10dp"
-                    android:src="@drawable/icon_down" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/ll_selece_dis"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tv_selece_sub"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="@drawable/serch_input_bg"
-                android:layout_marginLeft="3dp"
-                android:layout_marginRight="3dp"
-                android:orientation="horizontal"
-                android:visibility="gone" >
+                android:layout_marginLeft="5dp"
+                android:layout_weight="1"
+                android:ellipsize="start"
+                android:singleLine="true"
+                android:text="@string/self_pos"
+                android:textSize="@dimen/tv_line_time" />
 
-                <ListView
-                    android:id="@+id/lv_level_first"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:background="@color/white"
-                    android:divider="@color/gray_light"
-                    android:dividerHeight="1dp"
-                    android:listSelector="@android:color/transparent" />
-
-                <ListView
-                    android:id="@+id/lv_level_second"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="2dp"
-                    android:layout_marginRight="2dp"
-                    android:layout_weight="3"
-                    android:background="@color/white"
-                    android:divider="@color/gray_light"
-                    android:dividerHeight="1dp"
-                    android:listSelector="@android:color/transparent" />
-
-                <ListView
-                    android:id="@+id/lv_level_third"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:background="@color/white"
-                    android:divider="@color/gray_light"
-                    android:dividerHeight="1dp"
-                    android:listSelector="@android:color/transparent" />
-            </LinearLayout>
+            <ImageView
+                android:id="@+id/iv_down"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:padding="10dp"
+                android:src="@drawable/icon_down" />
         </LinearLayout>
 
-        <RelativeLayout
-            android:id="@+id/rl_searchInfo"
+        <LinearLayout
+            android:id="@+id/ll_selece_dis"
             android:layout_width="match_parent"
-            android:layout_height="140dp"
-            android:layout_alignParentBottom="true"
+            android:layout_height="wrap_content"
+            android:background="@drawable/serch_input_bg"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
             android:orientation="horizontal"
             android:visibility="gone" >
 
+            <ListView
+                android:id="@+id/lv_level_first"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:background="@color/white"
+                android:divider="@color/gray_light"
+                android:dividerHeight="1dp"
+                android:listSelector="@android:color/transparent" />
+
+            <ListView
+                android:id="@+id/lv_level_second"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+                android:layout_weight="3"
+                android:background="@color/white"
+                android:divider="@color/gray_light"
+                android:dividerHeight="1dp"
+                android:listSelector="@android:color/transparent" />
+
+            <ListView
+                android:id="@+id/lv_level_third"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="4"
+                android:background="@color/white"
+                android:divider="@color/gray_light"
+                android:dividerHeight="1dp"
+                android:listSelector="@android:color/transparent" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_searchInfo"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:visibility="gone" >
+
+        <LinearLayout
+            android:id="@+id/ll_subInfo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/serch_input_bg"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/tv_searchConn"
+                android:layout_width="wrap_content"
+                android:drawableBottom="@color/blue_light"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="20dp"
+                android:textSize="@dimen/show_title"
+                android:ellipsize="start"
+                android:singleLine="true"
+                android:autoLink="all"
+                android:textColor="@color/blue_light"
+                />
+
+
             <LinearLayout
-                android:id="@+id/ll_subInfo"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="30dp"
-                android:background="@drawable/serch_input_bg"
-                android:orientation="vertical" >
-
-                <TextView
-                    android:id="@+id/tv_searchConn"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="10dp" >
+                <ImageView
                     android:layout_width="wrap_content"
-                    android:drawableBottom="@color/blue_light"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginLeft="20dp"
-                    android:textSize="@dimen/show_title"
-                    android:ellipsize="start"
+                    android:layout_marginLeft="15dp"
+                    android:src="@drawable/common_addr_icon"
+                    android:background="@android:color/transparent"
+                    />
+                <TextView
+                    android:id="@+id/tv_distance"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/gray_light2"
+                    android:textSize="@dimen/show_conn"/>
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="20dp"
+                    android:background="@color/gray_light"/>
+                <TextView
+                    android:id="@+id/tv_father"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
                     android:singleLine="true"
-                    android:autoLink="all"
-                    android:textColor="@color/blue_light"
-                     />
-                
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="10dp" >
-                    <ImageView 
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:src="@drawable/common_addr_icon"
-                        android:background="@android:color/transparent"
-                        />
-                    <TextView 
-                        android:id="@+id/tv_distance"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/gray_light2"
-                        android:textSize="@dimen/show_conn"/>
-                    <View 
-                        android:layout_width="1dp"
-                        android:layout_height="20dp"
-                        android:background="@color/gray_light"/>
-                    <TextView 
-                        android:id="@+id/tv_father"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:singleLine="true"
-                        android:textColor="@color/gray_light2"
-                        android:textSize="@dimen/show_conn"/>
-                </LinearLayout>
+                    android:textColor="@color/gray_light2"
+                    android:textSize="@dimen/show_conn"/>
             </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/ib_dist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="30dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/track_main_collect_carline" />
-        </RelativeLayout>
+        </LinearLayout>
 
         <ImageButton
-            android:id="@+id/ib_update"
+            android:id="@+id/ib_dist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="20dp"
-            android:layout_marginLeft="20dp"
-            android:background="@android:color/transparent"
-            android:src="@drawable/update_sxgt" />
-
-        <ImageButton
-            android:id="@+id/ib_naviga"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
-            android:layout_marginBottom="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="30dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/bmskin_icon_home_route_normal" />
+            android:src="@drawable/track_main_collect_carline" />
     </RelativeLayout>
 
-</LinearLayout>
+    <ImageButton
+        android:id="@+id/ib_update"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="20dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/update_sxgt" />
+
+    <ImageButton
+        android:id="@+id/ib_naviga"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/bmskin_icon_home_route_normal" />
+
+    <LinearLayout
+        android:id="@+id/ll_down_progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <com.ppl.sxgtqx.view.CompletedView
+            android:id="@+id/tasks_view"
+            android:layout_width="223dp"
+            android:layout_height="223dp"
+            tc:circleColor="@color/white"
+            tc:radius="50dip"
+            tc:ringBgColor="@color/white2"
+            tc:ringColor="@color/blue_light"
+            tc:strokeWidth="10dip" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="应用正在下载最新安装包"
+            android:textSize="20sp"
+            android:textColor="@color/blue_light"/>
+    </LinearLayout>
+
+</RelativeLayout>

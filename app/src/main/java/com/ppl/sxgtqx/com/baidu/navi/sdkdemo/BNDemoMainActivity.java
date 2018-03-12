@@ -15,12 +15,15 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -55,6 +58,9 @@ import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
 import com.baidu.navisdk.adapter.BNOuterLogUtil;
+import com.liulishuo.filedownloader.BaseDownloadTask;
+import com.liulishuo.filedownloader.FileDownloadListener;
+import com.liulishuo.filedownloader.FileDownloader;
 import com.ppl.sxgtqx.MainPermissionActivity;
 import com.ppl.sxgtqx.R;
 import com.ppl.sxgtqx.activity.ElecSubShow;
@@ -74,9 +80,11 @@ import com.ppl.sxgtqx.utils.LocationEntity;
 import com.ppl.sxgtqx.utils.LogcatHelper;
 import com.ppl.sxgtqx.utils.MyPublicData;
 import com.ppl.sxgtqx.utils.UpdateEntity;
+import com.ppl.sxgtqx.view.CompletedView;
 import com.ppl.sxgtqx.view.CustomDialog;
 import com.ppl.sxgtqx.view.MyToast;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -151,6 +159,8 @@ import cn.bmob.v3.listener.QueryListener;
 	public static List<ElecSubInfo>elecSubAll = new ArrayList<ElecSubInfo>();
 	MainSprinAdapter firstAdp,seceAdp,thirdAdp;
 	TextView tv_distance,tv_father;
+	private CompletedView completedView;
+	private LinearLayout mLLProgress;
 
 	//数据库 保存获取数据
 	public static DbLocHelper dbHelper;
@@ -162,7 +172,6 @@ import cn.bmob.v3.listener.QueryListener;
 	 */
 	protected String[] needPermissions = {
 			Manifest.permission.ACCESS_COARSE_LOCATION,
-			Manifest.permission.ACCESS_FINE_LOCATION,
 			Manifest.permission.ACCESS_FINE_LOCATION,
 			Manifest.permission.READ_PHONE_STATE,
 			Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -201,7 +210,7 @@ import cn.bmob.v3.listener.QueryListener;
 		query.getObject("8abce600e6", new QueryListener<UpdateEntity>() {
 
 			@Override
-			public void done(UpdateEntity object, BmobException e) {
+			public void done(final UpdateEntity object, BmobException e) {
 				if(e==null){
 					// ---get the package info---
 					PackageManager pm = getApplication().getPackageManager();
@@ -222,6 +231,9 @@ import cn.bmob.v3.listener.QueryListener;
 											public void onClick(View v) {
 												//开启现在进度显示
 												mDialog.dismiss();
+												mLLProgress.setVisibility(View.VISIBLE);
+
+												downNewFile(object.getApkUrl());
 											}
 										})
 										.createTwoButtonDialog();
@@ -237,6 +249,100 @@ import cn.bmob.v3.listener.QueryListener;
 			}
 
 		});
+	}
+
+
+	/**
+	 * 下载最新的安装包
+	 * */
+	private void downNewFile(String apkUrl) {
+		//得到当前外部存储设备的目录
+		String SDCardRoot= Environment.getExternalStorageDirectory()+ File.separator;
+		//File.separator为文件分隔符”/“,方便之后在目录下创建文件
+		String fileDir = "sxgtxlt";
+		File dirFile=new File(SDCardRoot+File.separator+fileDir);
+		if(!dirFile.exists()){
+			dirFile.mkdir();        //创建文件夹
+		}
+
+		final String updateFile = dirFile + File.separator + "new_sxgtqx.apk";
+		final File newApk = new File(updateFile);
+		if(newApk.exists()){
+			newApk.delete();
+		}
+		FileDownloader.getImpl().create(apkUrl)
+				.setPath(updateFile)
+				.setListener(new FileDownloadListener() {
+					@Override
+					protected void pending(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+						Log.d("downFile","pending");
+					}
+
+					@Override
+					protected void connected(BaseDownloadTask task, String etag, boolean isContinue, int soFarBytes, int totalBytes) {
+						Log.d("downFile","connected");
+					}
+
+					@Override
+					protected void progress(BaseDownloadTask task, final int soFarBytes, final int totalBytes) {
+						final int progress = soFarBytes * 100 / totalBytes;
+						Log.d("downFile","progress: "+progress);
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								completedView.setProgress(progress);
+							}
+						});
+
+					}
+
+					@Override
+					protected void blockComplete(BaseDownloadTask task) {
+						Log.d("downFile","blockComplete");
+					}
+
+					@Override
+					protected void retry(final BaseDownloadTask task, final Throwable ex, final int retryingTimes, final int soFarBytes) {
+						Log.d("downFile","retry");
+					}
+
+					@Override
+					protected void completed(BaseDownloadTask task) {
+						//安装
+						Log.d("downFile","completed");
+
+						Intent intent = new Intent(Intent.ACTION_VIEW);
+						intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+							Log.w("downFile", "版本大于 N ，开始使用 fileProvider 进行安装");
+							intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+							Uri contentUri = FileProvider.getUriForFile(
+									getBaseContext()
+									, "com.ppl.sxgtqx.fileprovider"
+									, newApk);
+							intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
+						} else {
+							Log.w("downFile", "正常进行安装");
+							intent.setDataAndType(Uri.fromFile(newApk), "application/vnd.android.package-archive");
+						}
+						startActivity(intent);
+					}
+
+					@Override
+					protected void paused(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+						Log.d("downFile","paused");
+					}
+
+					@Override
+					protected void error(BaseDownloadTask task, Throwable e) {
+						Log.d("downFile","error");
+					}
+
+					@Override
+					protected void warn(BaseDownloadTask task) {
+						Log.d("downFile","error");
+					}
+				}).start();
 	}
 
 	/**
@@ -925,6 +1031,9 @@ import cn.bmob.v3.listener.QueryListener;
 
 		tv_searchConn.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); //下划线
 		tv_searchConn.getPaint().setAntiAlias(true);//抗锯齿
+
+		completedView = findViewById(R.id.tasks_view);
+		mLLProgress = findViewById(R.id.ll_down_progress);
 
 		Log.e(TAGMAIN, "开始初始化MyToast");
 		myToast = new MyToast(BNDemoMainActivity.this, 5000, Gravity.BOTTOM);
