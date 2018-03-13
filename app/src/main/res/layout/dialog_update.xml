@@ -9,10 +9,13 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:background="@drawable/dialog_bg_biggg"
-        android:padding="40dp"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:paddingTop="40dp"
+        android:paddingBottom="40dp"
         android:orientation="vertical" >
 
         <LinearLayout
@@ -40,7 +43,6 @@
             android:paddingTop="20dp"
             android:gravity="center" >
 
-
             <TextView
                 android:id="@+id/message"
                 style="@style/text_16_666666"
@@ -48,9 +50,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="left|center"
-                android:lineSpacingMultiplier="1.5"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp" />
+                android:textColor="@color/black"
+                android:lineSpacingMultiplier="1.5" />
         </LinearLayout>
 
         <FrameLayout
@@ -61,7 +62,7 @@
                 android:id="@+id/twoButtonLayout"
                 android:visibility="visible"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:gravity="center"
                 android:orientation="horizontal" >
@@ -73,8 +74,8 @@
                     android:layout_height="45dp"
                     android:background="@drawable/dialog_ok"
                     android:gravity="center"
-                    android:paddingLeft="20dp"
-                    android:paddingRight="20dp"
+                    android:paddingLeft="30dp"
+                    android:paddingRight="30dp"
                     android:text="升级"/>
 
             </LinearLayout>

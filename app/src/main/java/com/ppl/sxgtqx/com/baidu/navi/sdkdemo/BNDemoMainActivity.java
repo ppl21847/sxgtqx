@@ -206,6 +206,7 @@ import cn.bmob.v3.listener.QueryListener;
 	 * 检查更新
 	 * */
 	private void checkUpdate() {
+		Log.d("downFile","checkUpdate");
 		BmobQuery<UpdateEntity> query = new BmobQuery<UpdateEntity>();
 		query.getObject("8abce600e6", new QueryListener<UpdateEntity>() {
 
@@ -219,7 +220,7 @@ import cn.bmob.v3.listener.QueryListener;
 						pi = pm.getPackageInfo(getApplicationContext().getPackageName(), 0);
 						String versionName = pi.versionName;
 						int versioncode = pi.versionCode;
-						Log.d("apkInfo","versionName: "+versionName+",versioncode: "+versioncode);
+						Log.d("downFile","versionName: "+versionName+",versioncode: "+versioncode);
 
 						if(versioncode >= 1){
 							//校验是否更新
@@ -244,7 +245,7 @@ import cn.bmob.v3.listener.QueryListener;
 						e1.printStackTrace();
 					}
 				}else{
-					Log.i("bmob","失败："+e.getMessage()+","+e.getErrorCode());
+					Log.i("downFile","失败："+e.getMessage()+","+e.getErrorCode());
 				}
 			}
 

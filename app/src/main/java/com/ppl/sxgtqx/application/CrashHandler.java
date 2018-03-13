@@ -18,14 +18,19 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
+
+import cn.bmob.v3.datatype.BmobFile;
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.UploadFileListener;
 
 public class CrashHandler implements UncaughtExceptionHandler{
 	private static final String TAG = "CrashHandler";  
     private static final boolean DEBUG = true;  
   
     private static final String PATH = Environment.getExternalStorageDirectory().getPath() + "/ryg_test/log/";  
-    private static final String FILE_NAME = "crash";
+    private static final String FILE_NAME = "sxgtqxxlt_crash";
     
   //log文件的后缀名  
     private static final String FILE_NAME_SUFFIX = ".trace";  
@@ -61,9 +66,11 @@ public class CrashHandler implements UncaughtExceptionHandler{
 		// TODO Auto-generated method stub
 		try {
 			//导出异常信息到SD卡中
-			dumpExceptionToSDCard(ex);  
-            //这里可以通过网络上传异常信息到服务器，便于开发人员分析日志从而解决bug  
-            uploadExceptionToServer();  
+			String fileName = dumpExceptionToSDCard(ex);
+            //这里可以通过网络上传异常信息到服务器，便于开发人员分析日志从而解决bug
+			if(!TextUtils.isEmpty(fileName)){
+				uploadExceptionToServer(fileName);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();  
 		}
@@ -79,18 +86,31 @@ public class CrashHandler implements UncaughtExceptionHandler{
             System.exit(1);
         }
 	}
-	private void uploadExceptionToServer() {
+	private void uploadExceptionToServer(String fileName) {
 		// TODO Auto-generated method stub
-		
+		String crashFile = fileName;
+		BmobFile bmobFile = new BmobFile(new File(crashFile));
+		bmobFile.uploadblock(new UploadFileListener() {
+
+			@Override
+			public void done(BmobException e) {
+			}
+
+			@Override
+			public void onProgress(Integer value) {
+				// 返回的上传进度（百分比）
+			}
+		});
 	}
 
-	private void dumpExceptionToSDCard(Throwable ex)throws IOException{
+	private String dumpExceptionToSDCard(Throwable ex)throws IOException{
 		//如果SD卡不存在或无法使用，则无法把异常信息写入SD卡  
 		if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-			if(DEBUG){
-				Log.w(TAG, "sdcard unmounted,skip dump exception");
-				return;
-			}
+			return null;
+//			if(DEBUG){
+//				Log.w(TAG, "sdcard unmounted,skip dump exception");
+//
+//			}
 		}
 		File dir = new File(PATH);
 		if(!dir.exists()){
@@ -98,8 +118,9 @@ public class CrashHandler implements UncaughtExceptionHandler{
 		}
 		long current = System.currentTimeMillis();
 		String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(current));
-		//以当前时间创建log文件  
-        File file = new File(PATH + FILE_NAME + time + FILE_NAME_SUFFIX);  
+		//以当前时间创建log文件
+		String fileName = PATH + FILE_NAME + time + FILE_NAME_SUFFIX;
+        File file = new File(fileName);
         
         try {
         	PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(file)));
@@ -112,11 +133,12 @@ public class CrashHandler implements UncaughtExceptionHandler{
           //导出异常的调用栈信息  
             ex.printStackTrace(pw);
             pw.close();
+            return fileName;
 		} catch (Exception e) {
 			// TODO: handle exception
 			Log.e(TAG,  "dump crash info failed");
 		}
-        
+        return null;
 	}
 
 	private void dumpPhoneInfo(PrintWriter pw) throws NameNotFoundException {
