@@ -37,16 +37,17 @@ public class LocationApplication extends Application {
          */
         locationService = new LocationService(getApplicationContext());
         mVibrator =(Vibrator)getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
-        SDKInitializer.initialize(getApplicationContext());  
-        
-        LogcatHelper.getInstance(this).start();
+		initLoginInfo();
+
+		SDKInitializer.initialize(getApplicationContext());
+
+		LogcatHelper.getInstance(this).start();
 		Log.e("LocationApplication", "Bmob.initialize : start");
 		//第一：默认初始化  BMOB初始化
 		Bmob.initialize(getApplicationContext(), "ba27ad9402b3fd4c9495c1b7d1379f48");
 		Log.e("LocationApplication", "Bmob.initialize : end");
 
 		FileDownloader.setupOnApplicationOnCreate(this);
-		initLoginInfo();
     }
     
     /**

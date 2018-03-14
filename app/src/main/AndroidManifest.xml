@@ -47,12 +47,16 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.InitActivity"
+            >
+
+        </activity>
+
         <activity
             android:name=".com.baidu.navi.sdkdemo.BNDemoMainActivity"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:label="@string/sdk_name"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-            >
+            android:theme="@style/StartTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

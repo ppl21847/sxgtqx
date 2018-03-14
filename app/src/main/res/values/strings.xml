@@ -92,4 +92,6 @@
     <string name="permission_label_cancel">取消</string>
     <string name="quit_warnning">确定要退出管理员状态，退出后不能管理地点信息？</string>
     <string name="updata_warnning">下载完成后选择安装方可使用</string>
+    <string name="update_log_title">发现新版本，请更新</string>
+    <string name="immediately_update">立即升级</string>
 </resources>

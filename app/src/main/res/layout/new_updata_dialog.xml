@@ -56,6 +56,8 @@
                     android:id="@+id/message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/host_space_14"
+                    android:layout_marginRight="@dimen/host_space_14"
                     android:textSize="@dimen/host_text_size_14" />
             </ScrollView>
         </LinearLayout>
@@ -104,7 +106,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:textSize="@dimen/host_text_size_15"
-                android:textColor="@color/color_updata"
+                android:textColor="@color/blue_light"
                 android:paddingTop="@dimen/host_space_14"
                 android:gravity="center_horizontal"
                 android:visibility="visible"
@@ -119,15 +121,15 @@
             android:orientation="vertical"
             android:visibility="gone"
             android:background="@drawable/new_uploading_process_bg">
-            <com.mi.oa.lib.common.widget.HorizontalProgressBarWithNumber
+            <com.ppl.sxgtqx.view.HorizontalProgressBarWithNumber
                 android:id="@+id/hpb_down"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:progress="0"
                 android:max="100"
                 zhy:progress_unreached_color = "@color/down_circle_bg_gray"
-                zhy:progress_reached_color = "@color/color_updata"
-                zhy:progress_text_color = "@color/color_updata"
+                zhy:progress_reached_color = "@color/blue_light"
+                zhy:progress_text_color = "@color/blue_light"
                 zhy:progress_text_size = "@dimen/host_text_size_12"/>
             <TextView
                 android:layout_width="match_parent"

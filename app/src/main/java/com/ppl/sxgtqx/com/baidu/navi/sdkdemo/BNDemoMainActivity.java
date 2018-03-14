@@ -34,7 +34,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -80,9 +79,8 @@ import com.ppl.sxgtqx.utils.LocationEntity;
 import com.ppl.sxgtqx.utils.LogcatHelper;
 import com.ppl.sxgtqx.utils.MyPublicData;
 import com.ppl.sxgtqx.utils.UpdateEntity;
-import com.ppl.sxgtqx.view.CompletedView;
-import com.ppl.sxgtqx.view.CustomDialog;
 import com.ppl.sxgtqx.view.MyToast;
+import com.ppl.sxgtqx.view.UpdataAlertDialog;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -159,8 +157,6 @@ import cn.bmob.v3.listener.QueryListener;
 	public static List<ElecSubInfo>elecSubAll = new ArrayList<ElecSubInfo>();
 	MainSprinAdapter firstAdp,seceAdp,thirdAdp;
 	TextView tv_distance,tv_father;
-	private CompletedView completedView;
-	private LinearLayout mLLProgress;
 
 	//数据库 保存获取数据
 	public static DbLocHelper dbHelper;
@@ -180,8 +176,7 @@ import cn.bmob.v3.listener.QueryListener;
 
 	private static final int PERMISSON_REQUESTCODE = 0;
 	private Context context;
-	private CustomDialog.Builder builder;
-	private CustomDialog mDialog;
+	private UpdataAlertDialog mDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -220,24 +215,46 @@ import cn.bmob.v3.listener.QueryListener;
 						pi = pm.getPackageInfo(getApplicationContext().getPackageName(), 0);
 						String versionName = pi.versionName;
 						int versioncode = pi.versionCode;
+						String desc = object.getUpdateDescroption();
 						Log.d("downFile","versionName: "+versionName+",versioncode: "+versioncode);
+						Log.d("downFile","msg: "+desc);
 
 						if(versioncode >= 1){
 							//校验是否更新
 							if(object.getVersionCode() > versioncode){
 								//弹出更新提示框
-								mDialog = builder.setMessage(object.getUpdateDescroption())
-										.setPositiveButton("升级", new OnClickListener() {
-											@Override
-											public void onClick(View v) {
-												//开启现在进度显示
-												mDialog.dismiss();
-												mLLProgress.setVisibility(View.VISIBLE);
+								//防止重复刷新弹出框
+								if (mDialog != null && mDialog.isShowing()) {
+									return;
+								}
 
-												downNewFile(object.getApkUrl());
-											}
-										})
-										.createTwoButtonDialog();
+								mDialog = new UpdataAlertDialog(BNDemoMainActivity.this);
+
+								mDialog.setTitle(R.string.update_log_title);
+								Log.d("downFile","msg: "+desc);
+								mDialog.setMessage("" + desc);
+								mDialog.setCanceledOnTouchOutside(false);//点击空白处无响应
+								mDialog.setCancelable(false);//用户按返回键也无法取消
+								//强制更新没有取消按钮
+								mDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+									@Override
+									public void onCancel(DialogInterface dialog) {
+										if (Build.VERSION.SDK_INT >= 16)
+											(BNDemoMainActivity.this).finishAffinity();
+										else {
+											System.exit(0);
+										}
+									}
+								});
+
+								//强制更新
+								mDialog.setNeutralButton(R.string.immediately_update, new View.OnClickListener() {
+									@Override
+									public void onClick(View v) {
+										Log.d("downFile","开始下载");
+										downNewFile(object.getApkUrl());
+									}
+								});
 								mDialog.show();
 							}
 						}
@@ -271,6 +288,7 @@ import cn.bmob.v3.listener.QueryListener;
 		if(newApk.exists()){
 			newApk.delete();
 		}
+
 		FileDownloader.getImpl().create(apkUrl)
 				.setPath(updateFile)
 				.setListener(new FileDownloadListener() {
@@ -291,7 +309,7 @@ import cn.bmob.v3.listener.QueryListener;
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								completedView.setProgress(progress);
+								mDialog.setProcess(progress);
 							}
 						});
 
@@ -327,6 +345,7 @@ import cn.bmob.v3.listener.QueryListener;
 							intent.setDataAndType(Uri.fromFile(newApk), "application/vnd.android.package-archive");
 						}
 						startActivity(intent);
+						mDialog.dismiss();
 					}
 
 					@Override
@@ -1033,14 +1052,9 @@ import cn.bmob.v3.listener.QueryListener;
 		tv_searchConn.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG); //下划线
 		tv_searchConn.getPaint().setAntiAlias(true);//抗锯齿
 
-		completedView = findViewById(R.id.tasks_view);
-		mLLProgress = findViewById(R.id.ll_down_progress);
-
 		Log.e(TAGMAIN, "开始初始化MyToast");
 		myToast = new MyToast(BNDemoMainActivity.this, 5000, Gravity.BOTTOM);
 		Log.e(TAGMAIN, "初始化MyToast,结束!!!");
-
-		builder = new CustomDialog.Builder(this);
 	}
 	/*
 	 * 显示自己当前位置

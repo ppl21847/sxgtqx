@@ -210,31 +210,4 @@
         android:layout_marginRight="20dp"
         android:background="@android:color/transparent"
         android:src="@drawable/bmskin_icon_home_route_normal" />
-
-    <LinearLayout
-        android:id="@+id/ll_down_progress"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
-        <com.ppl.sxgtqx.view.CompletedView
-            android:id="@+id/tasks_view"
-            android:layout_width="223dp"
-            android:layout_height="223dp"
-            tc:circleColor="@color/white"
-            tc:radius="50dip"
-            tc:ringBgColor="@color/white2"
-            tc:ringColor="@color/blue_light"
-            tc:strokeWidth="10dip" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="应用正在下载最新安装包"
-            android:textSize="20sp"
-            android:textColor="@color/blue_light"/>
-    </LinearLayout>
-
 </RelativeLayout>
