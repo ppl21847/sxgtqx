@@ -89,5 +89,7 @@
     <string name="root_connt">一级目录</string>
     <string name="second_connt">二级目录</string>
     <string name="select_pos_hing_frist">点击左侧图标定位当前位置或点击地图选位置</string>
+    <string name="permission_label_cancel">取消</string>
     <string name="quit_warnning">确定要退出管理员状态，退出后不能管理地点信息？</string>
+    <string name="updata_warnning">下载完成后选择安装方可使用</string>
 </resources>

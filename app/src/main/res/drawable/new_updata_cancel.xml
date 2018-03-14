@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <corners
+                android:topRightRadius="@dimen/host_space_0"
+                android:topLeftRadius="@dimen/host_space_0"
+                android:bottomRightRadius="@dimen/host_space_0"
+                android:bottomLeftRadius="@dimen/dp_4"/>
+            <solid
+                android:color="@color/down_circle_bg_press"/>
+            <stroke
+                android:width="@dimen/host_space_1"
+                android:color="@color/down_circle_bg_gray"/>
+        </shape>
+    </item>
+
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <corners
+                android:topRightRadius="@dimen/host_space_0"
+                android:topLeftRadius="@dimen/host_space_0"
+                android:bottomRightRadius="@dimen/host_space_0"
+                android:bottomLeftRadius="@dimen/dp_4"/>
+            <solid
+                android:color="@color/down_circle_bg_press"/>
+            <stroke
+                android:width="@dimen/host_space_1"
+                android:color="@color/down_circle_bg_gray"/>
+        </shape>
+    </item>
+
+
+    <item >
+        <shape android:shape="rectangle">
+            <corners
+                android:topRightRadius="@dimen/host_space_0"
+                android:topLeftRadius="@dimen/host_space_0"
+                android:bottomRightRadius="@dimen/host_space_0"
+                android:bottomLeftRadius="@dimen/dp_4"/>
+            <solid
+                android:color="@color/down_circle_bg_gray"/>
+            <stroke
+                android:width="@dimen/host_space_1"
+                android:color="@color/down_circle_bg_gray"/>
+        </shape>
+    </item>
+
+</selector>

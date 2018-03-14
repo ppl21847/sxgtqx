@@ -10,4 +10,13 @@
 	<dimen name="tv_line_time">17sp</dimen>
 	<dimen name="tv_line_dist">13sp</dimen>
 	<dimen name="ed_sub_info">15sp</dimen>
+    <dimen name="host_space_8">8dp</dimen>
+    <dimen name="host_space_4">4dp</dimen>
+    <dimen name="host_text_size_14">14sp</dimen>
+    <dimen name="host_space_0">0dp</dimen>
+    <dimen name="host_space_14">14dp</dimen>
+    <dimen name="host_text_size_15">15sp</dimen>
+    <dimen name="host_text_size_12">12sp</dimen>
+    <dimen name="dp_4">4dp</dimen>
+    <dimen name="host_space_1">1dp</dimen>
 </resources>

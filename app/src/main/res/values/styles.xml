@@ -16,8 +16,8 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
-    
-    <style name="style_RadioButton">  
+
+    <style name="style_RadioButton">
         <item name="android:layout_width">0dp</item>  
         <item name="android:layout_height">wrap_content</item>  
         <item name="android:button">@null</item>  
@@ -82,5 +82,21 @@
         <attr name="ringColor" format="color"/>
         <attr name="ringBgColor" format="color"/>
     </declare-styleable>
+
+    <style name="UpdateDialog" parent="android:style/Theme.Dialog">
+        <item name="android:background">#00000000</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
+    <style name="StartTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- <item name="android:background">@mipmap/splash_bg_new</item>-->
+        <item name="android:windowBackground">@mipmap/start_bg</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 
 </resources>

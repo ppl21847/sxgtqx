@@ -14,14 +14,15 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ppl.sxgtqx.R;
 import com.ppl.sxgtqx.adpter.ShowImgAdapter;
 import com.ppl.sxgtqx.application.LocationApplication;
-import com.ppl.sxgtqx.com.loopj.android.image.SmartImageView;
 import com.ppl.sxgtqx.utils.ConnType;
 import com.ppl.sxgtqx.utils.FileUtils;
 import com.ppl.sxgtqx.utils.MyPublicData;
@@ -56,7 +57,7 @@ public class ElecSubShow extends Activity implements OnClickListener{
 	ConnType showData;
 	File imgThPath;			//将图片保存至本地
 	String thImgDir="noUser";
-	SmartImageView siv_show_big;
+	ImageView siv_show_big;
 	boolean showBigSta = false;
 	String localImgPaths = "noPic";
 	//自定义Toast 
@@ -119,7 +120,7 @@ public class ElecSubShow extends Activity implements OnClickListener{
 		tv_show_title = (TextView) findViewById(R.id.tv_show_title);
 		gv_show = (GridView) findViewById(R.id.gv_show);
 		tv_edit_sub = (TextView) findViewById(R.id.tv_edit_sub);
-		siv_show_big = (SmartImageView) findViewById(R.id.siv_show_big);
+		siv_show_big = (ImageView) findViewById(R.id.siv_show_big);
 	}
 
 	private void initData() {
@@ -153,7 +154,7 @@ public class ElecSubShow extends Activity implements OnClickListener{
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
-				siv_show_big.setImageUrl(ImgPath.get(arg2));
+				Glide.with(ElecSubShow.this).load(ImgPath.get(arg2)).into(siv_show_big);
 				siv_show_big.setVisibility(View.VISIBLE);
 				showBigSta = true;
 			}

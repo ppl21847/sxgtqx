@@ -20,4 +20,11 @@
 
     <color name="white2">#f5f3f3</color>
     <color name="colorRed">#d50f09</color>
+    <color name="divider_gray_line">#FFF9F9F9</color>
+    <color name="mi_langting_black_100">#ff202332</color>
+    <color name="mi_langting_black_5">#80202332</color>
+    <color name="color_updata">#FF6633</color>
+    <color name="text_99494c55">#99494c55</color>
+    <color name="down_circle_bg_press">#d0d0d0</color>
+    <color name="down_circle_bg_gray">#F0F0F0</color>
 </resources>

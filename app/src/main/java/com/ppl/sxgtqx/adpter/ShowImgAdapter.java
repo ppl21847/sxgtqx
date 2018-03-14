@@ -1,10 +1,6 @@
 package com.ppl.sxgtqx.adpter;
 
-import java.util.List;
-
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +9,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.bumptech.glide.Glide;
 import com.ppl.sxgtqx.R;
-import com.ppl.sxgtqx.com.loopj.android.image.SmartImageView;
+
+import java.util.List;
 
 
 public class ShowImgAdapter extends BaseAdapter {
@@ -59,7 +57,7 @@ public class ShowImgAdapter extends BaseAdapter {
 		if(convertView == null){
 			holder = new viewHolder();
 			convertView = layoutInflater.inflate(R.layout.item_show_img, null);
-			holder.img = (SmartImageView) convertView.findViewById(R.id.iv_item_show_img);
+			holder.img = (ImageView) convertView.findViewById(R.id.iv_item_show_img);
 			convertView.setTag(holder);
 		}else{
 			holder = (viewHolder)convertView.getTag();
@@ -73,13 +71,13 @@ public class ShowImgAdapter extends BaseAdapter {
 		if(data.size() == 0){
 			holder.img.setImageResource(R.drawable.empty_photo);
 		}else{
-			holder.img.setImageUrl(data.get(arg0));
+			Glide.with(mContext).load(data.get(arg0)).into(holder.img);
 		}
 		
 		return convertView;
 	}
 	private class viewHolder{
-		SmartImageView img;
+		ImageView img;
 	}
 
 }

@@ -197,8 +197,8 @@
         android:layout_marginBottom="20dp"
         android:layout_marginLeft="20dp"
         android:background="@android:color/transparent"
-        android:src="@drawable/update_sxgt"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:src="@drawable/update_sxgt"/>
 
     <ImageButton
         android:id="@+id/ib_naviga"

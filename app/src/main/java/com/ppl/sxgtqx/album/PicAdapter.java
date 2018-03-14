@@ -1,7 +1,5 @@
 package com.ppl.sxgtqx.album;
 
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -16,8 +14,9 @@ import android.widget.RelativeLayout;
 
 import com.ppl.sxgtqx.R;
 import com.ppl.sxgtqx.activity.NewSubLoc;
-import com.ppl.sxgtqx.com.loopj.android.image.SmartImageView;
 import com.ppl.sxgtqx.view.MyGridView;
+
+import java.util.List;
 
 
 public class PicAdapter extends BaseAdapter {
@@ -104,7 +103,7 @@ public class PicAdapter extends BaseAdapter {
 		if (convertView == null) {
 			holder = new ViewHolder();
 			convertView = View.inflate(context, R.layout.item_published_grida, null);
-			holder.iv_image =  (SmartImageView) convertView.findViewById(R.id.item_grida_image);
+			holder.iv_image =  (ImageView) convertView.findViewById(R.id.item_grida_image);
 			holder.iv_delete_image = (ImageView) convertView.findViewById(R.id.iv_delete_image);
 			convertView.setTag(holder);
 		} else {
@@ -148,7 +147,7 @@ public class PicAdapter extends BaseAdapter {
 		return convertView;
 	}
 	public static class ViewHolder {
-		public SmartImageView iv_image;
+		public ImageView iv_image;
 		public ImageView iv_delete_image;
 	}
 
