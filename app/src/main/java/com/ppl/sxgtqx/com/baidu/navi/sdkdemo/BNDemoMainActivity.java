@@ -8,8 +8,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -71,6 +69,7 @@ import com.ppl.sxgtqx.dataSQL.DbLocHelper;
 import com.ppl.sxgtqx.service.LocationService;
 import com.ppl.sxgtqx.service.Utils;
 import com.ppl.sxgtqx.utils.ConnType;
+import com.ppl.sxgtqx.utils.DownFile;
 import com.ppl.sxgtqx.utils.ElecSubInfo;
 import com.ppl.sxgtqx.utils.LevelRoot;
 import com.ppl.sxgtqx.utils.LevelSecond;
@@ -98,17 +97,12 @@ import cn.bmob.v3.listener.QueryListener;
 	public static List<Activity> activityList = new LinkedList<Activity>();
 
 	public static final String ROUTE_PLAN_NODE = "routePlanNode";
-	public static final String SHOW_CUSTOM_ITEM = "showCustomItem";
-	public static final String RESET_END_NODE = "resetEndNode";
-	public static final String VOID_MODE = "voidMode";
 
-	public static boolean hasInitSuccess = false;
 	public static boolean hasRoutPlanSta = false;
 
 	//基础地图 + 定位
 	public static final String DEFAULTSTA = "defaltSta";
 	public static final String DISTID = "distinationId";
-	public static final String STARTID = "startId";
 
 	protected static final int CHANGE_SELF_POS = 7;
 	protected static final int DIMISS_DLG = 8;
@@ -118,7 +112,6 @@ import cn.bmob.v3.listener.QueryListener;
 	private static final int SECOND_ADD_SUCCESS = 12;
 	private static final int FRIST_ADD_SUCCESS = 13;
 	private static final int ADD_FALUE = 14;
-	protected static final int DATA_REPAIR_DONE = 16;
 	protected static final int GET_ROOT_DATA = 15;
 	protected static final int NOTIFY_SECOND_ADP = 17;
 	private static final int NOTIFY_THRID_ADP = 18;
@@ -143,19 +136,18 @@ import cn.bmob.v3.listener.QueryListener;
 	LinearLayout ll_serach;
 	boolean showSubSta = false;			//是否显示可选地点
 	LinearLayout ll_selece_dis;
-	ListView lv_level_first,lv_level_second,lv_level_third;
+	ListView lv_level_first,lv_level_second,lv_level_third,lv_level_third_re;
 	int level1=0,level2=0,level3=0;
 	String selectConn = "";
 	ImageView iv_down;
 	ImageButton ib_set;
-	EditText et_level_conn;
 
 	private LocationService locService;
 	private LinkedList<LocationEntity> locationList = new LinkedList<LocationEntity>(); // 存放历史定位结果的链表，最大存放当前结果的前5次定位结果
 
 
 	public static List<ElecSubInfo>elecSubAll = new ArrayList<ElecSubInfo>();
-	MainSprinAdapter firstAdp,seceAdp,thirdAdp;
+	MainSprinAdapter firstAdp,seceAdp,thirdAdp,reThirdAdp;
 	TextView tv_distance,tv_father;
 
 	//数据库 保存获取数据
@@ -175,7 +167,6 @@ import cn.bmob.v3.listener.QueryListener;
 	};
 
 	private static final int PERMISSON_REQUESTCODE = 0;
-	private Context context;
 	private UpdataAlertDialog mDialog;
 
 	@Override
@@ -188,10 +179,10 @@ import cn.bmob.v3.listener.QueryListener;
 		checkPermissions(needPermissions);
 		setContentView(R.layout.activity_main);
 
-		context = this;
 		initDataSQL();
 		initView();
 		initMap();
+		MyPublicData.getLocData(dbHelper);
 		initLocListView();
 		checkUpdate();
 		initSQL();//与服务器数据同步
@@ -296,95 +287,7 @@ import cn.bmob.v3.listener.QueryListener;
 	 * 下载最新的安装包
 	 * */
 	private void downNewFile(String apkUrl) {
-		//得到当前外部存储设备的目录
-		String SDCardRoot= Environment.getExternalStorageDirectory()+ File.separator;
-		//File.separator为文件分隔符”/“,方便之后在目录下创建文件
-		String fileDir = "sxgtxlt";
-		File dirFile=new File(SDCardRoot+File.separator+fileDir);
-		if(!dirFile.exists()){
-			dirFile.mkdir();        //创建文件夹
-		}
 
-		final String updateFile = dirFile + File.separator + "new_sxgtqx.apk";
-		final File newApk = new File(updateFile);
-		if(newApk.exists()){
-			newApk.delete();
-		}
-
-		FileDownloader.getImpl().create(apkUrl)
-				.setPath(updateFile)
-				.setListener(new FileDownloadListener() {
-					@Override
-					protected void pending(BaseDownloadTask task, int soFarBytes, int totalBytes) {
-						Log.d("downFile","pending");
-					}
-
-					@Override
-					protected void connected(BaseDownloadTask task, String etag, boolean isContinue, int soFarBytes, int totalBytes) {
-						Log.d("downFile","connected");
-					}
-
-					@Override
-					protected void progress(BaseDownloadTask task, final int soFarBytes, final int totalBytes) {
-						final int progress = soFarBytes * 100 / totalBytes;
-						Log.d("downFile","progress: "+progress);
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								mDialog.setProcess(progress);
-							}
-						});
-
-					}
-
-					@Override
-					protected void blockComplete(BaseDownloadTask task) {
-						Log.d("downFile","blockComplete");
-					}
-
-					@Override
-					protected void retry(final BaseDownloadTask task, final Throwable ex, final int retryingTimes, final int soFarBytes) {
-						Log.d("downFile","retry");
-					}
-
-					@Override
-					protected void completed(BaseDownloadTask task) {
-						//安装
-						Log.d("downFile","completed");
-
-						Intent intent = new Intent(Intent.ACTION_VIEW);
-						intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-							Log.w("downFile", "版本大于 N ，开始使用 fileProvider 进行安装");
-							intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-							Uri contentUri = FileProvider.getUriForFile(
-									getBaseContext()
-									, "com.ppl.sxgtqx.fileprovider"
-									, newApk);
-							intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
-						} else {
-							Log.w("downFile", "正常进行安装");
-							intent.setDataAndType(Uri.fromFile(newApk), "application/vnd.android.package-archive");
-						}
-						startActivity(intent);
-						mDialog.dismiss();
-					}
-
-					@Override
-					protected void paused(BaseDownloadTask task, int soFarBytes, int totalBytes) {
-						Log.d("downFile","paused");
-					}
-
-					@Override
-					protected void error(BaseDownloadTask task, Throwable e) {
-						Log.d("downFile","error");
-					}
-
-					@Override
-					protected void warn(BaseDownloadTask task) {
-						Log.d("downFile","error");
-					}
-				}).start();
 	}
 
 	/**
@@ -510,7 +413,7 @@ import cn.bmob.v3.listener.QueryListener;
 			public void run() {
 				//同步三级地址信息
 				Log.e(TAGMAIN, "--3333333333333333开始获取san级地址信息");
-				syncThird();
+				MyPublicData.syncThird(dbHelper);
 			}
 		}).start();
 
@@ -519,7 +422,7 @@ import cn.bmob.v3.listener.QueryListener;
 			public void run() {
 				// TODO Auto-generated method stub
 				Log.e(TAGMAIN, "--22222222开始获取二级地址信息");
-				syncSecondSQL();
+				MyPublicData.syncSecondSQL(dbHelper);
 			}
 		}).start();
 		new Thread(new Runnable() {
@@ -528,326 +431,28 @@ import cn.bmob.v3.listener.QueryListener;
 			public void run() {
 				// TODO Auto-generated method stub
 				Log.e(TAGMAIN, "---1111111111111开始获取一级地址信息");
-				syncFirstSQL();
+				MyPublicData.syncFirstSQL(dbHelper);
 			}
 		}).start();
 	}
-	protected void syncFirstSQL() {
-		Log.e(TAGMAIN, "请求根木录信息-------------------------00000000000000000000000");
-		BmobQuery<LevelRoot> query = new BmobQuery<LevelRoot>();
-		query.addWhereEqualTo("delSta", 1);
-		query.findObjects(new FindListener<LevelRoot>() {
-			@Override
-			public void done(List<LevelRoot> data, BmobException e) {
-				if(e==null){
-					Log.e(TAGMAIN, "get LevelRoot data.size():"+data.size());
-					List<LevelRoot>tmpRoot = dbHelper.getRootData();
-					if(tmpRoot == null){
-						for(int i=0;i<data.size();i++){
-							Log.e(TAGMAIN, "get LevelRoot data("+i+"):"+data.get(i).toString());
-							Log.e(TAGMAIN, "添加至本地数据库: "+data.get(i).toString());
-							LevelRoot tmpData = new LevelRoot(data.get(i).getObjectId(),
-									data.get(i).getName(), 0, 1);
-							//添加至本地数据库
-							dbHelper.addFirst(tmpData);
-						}
-					}else{
-						//更新数据库
-						Log.e(TAGMAIN, "服务器端根木录有删除位置信息删除前数据： "+tmpRoot.size());
-						for(int j=0;j<tmpRoot.size();){
-							Log.e(TAGMAIN, j+"  : " +tmpRoot.get(j).toString());
-							boolean findSta = true;
-							for(int i=0;i<data.size();i++){
-								Log.e(TAGMAIN, i+"  : " +data.get(i).toString());
-								if(tmpRoot.get(j).getID().equals(
-										data.get(i).getObjectId())){
-									findSta = false;
-									Log.e(TAGMAIN, "存在该条数据，更新");
-									dbHelper.updataFirstInfo(new LevelRoot(
-											data.get(i).getObjectId(),
-											data.get(i).getName(),
-											data.get(i).getLevel(),
-											data.get(i).getDelSta()));
-								}
-							}
-							if(findSta){
-								//服务器已删除该条数据
-								Log.e(TAGMAIN, "服务器已删除该条数据： "+tmpRoot.get(j).toString());
-								dbHelper.deleteRoot(tmpRoot.get(j).getID());
-								tmpRoot.remove(j);
-							}else{
-								j++;
-							}
-						}
-						//保存至本地数据库
-						if(data.size() > tmpRoot.size()){
-							for(int i=0;i<data.size();i++){
-								Log.e(TAGMAIN, "服务器一级地址，第 "+i+" 条，数据为： "+data.get(i).toString());
-								Log.e(TAGMAIN, "get LevelRoot data("+i+"):"+data.get(i).toString());
-								//有用位置 未被删除
-								boolean isNewSta = false;
-								for(int j=0;j<tmpRoot.size();j++){
-									if(tmpRoot.get(j).getID().equals(
-											data.get(i).getObjectId())){
-										isNewSta = true;
-										break;
-									}
-								}
-								if(!isNewSta){
-									Log.e(TAGMAIN, "添加至本地数据库: "+data.get(i).toString());
-									LevelRoot tmpData = new LevelRoot(data.get(i).getObjectId(),
-											data.get(i).getName(), 0, 1);
-									//添加至本地数据库
-									dbHelper.addFirst(tmpData);
-								}
-							}
-						}
-					}
-				}else{
-					Log.e(TAGMAIN, "网络连接失败，获取一级地址失败");
-				}
-			}
-		});
-	}
-	protected void syncSecondSQL() {
-		Log.e(TAGMAIN, "获取服务器二级地址信息----------22222222");
-		BmobQuery<LevelSecond> query = new BmobQuery<LevelSecond>();
-		//查询delSta叫“1”的数据
-		int delSta = 1;
-		query.addWhereEqualTo("delSta", delSta);
-		//返回50条数据，如果不加上这条语句，默认返回10条数据
-		//		query.setLimit(50);
-		//执行查询方法
-		query.findObjects(new FindListener<LevelSecond>() {
-			@Override
-			public void done(List<LevelSecond> data, BmobException e) {
-				if(e==null){
-					Log.e(TAGMAIN, "get LevelSecond data.size():"+data.size());
-					//更新本地数据库		服务器端有数据删除，本地需要删除
-					List<LevelSecond>tmpDataNet = dbHelper.getSecondData();
 
-					if(tmpDataNet == null){
-						Log.e(TAGMAIN, "本地数据库没有二级地址");
-						//添加新数据
-						for(int j=0;j<data.size();j++){
-							Log.e(TAGMAIN, "本地不存在该条数据,需要添加至本地： "+data.get(j).toString());
-							LevelSecond tmpData = new LevelSecond(data.get(j).getFatherId(),
-									data.get(j).getObjectId(), data.get(j).getName(), 1, 1);
-							Log.e(TAGMAIN, "像数据库添加的数据为  ： "+tmpData.toString());
-							dbHelper.addSecond(tmpData);
-						}
-					}else{
-						Log.e(TAGMAIN, "本地数据库二级地址有："+tmpDataNet.size()+" 条");
-						for(int i=0;i<tmpDataNet.size();){
-							boolean deleSta = false;
-							for(int j=0;j<data.size();j++){
-								if(tmpDataNet.get(i).getID().equals(data.get(j).getObjectId())){
-									//服务器存在该条数据 不用删除 
-									Log.e(TAGMAIN, "服务器同样存在该条数据： "+tmpDataNet.get(i).toString());
-									Log.e(TAGMAIN, "更新该条数据");
-									dbHelper.updataSecondInfo(new LevelSecond(
-											data.get(j).getFatherId(),
-											data.get(j).getObjectId(),
-											data.get(j).getName(),
-											data.get(j).getLevel(),
-											data.get(j).getDelSta()));
-									deleSta = true;
-									break;
-								}
-							}
-							if(!deleSta){
-								//服务器已经删除该数据
-								Log.e(TAGMAIN, "服务器已删除该条数据： "+tmpDataNet.get(i).toString());
-								dbHelper.deleteSecond(tmpDataNet.get(i).getID());
-								tmpDataNet.remove(i);
-							}else{
-								i++;
-							}
-						}
-						//--------->>>>>>>>完成本地数据库数据删除
-						if(data.size() > tmpDataNet.size()){
-							//添加新数据
-							for(int j=0;j<data.size();j++){
-								Log.e(TAGMAIN, "服务器二级地址，第 "+j+" 条，数据为： "+data.get(j).toString());
-								boolean addSta = false;
-								for(int i=0;i<tmpDataNet.size();i++){
-									if(tmpDataNet.get(i).getObjectId().equals(data.get(j).getID())){
-										//本地存在 不用新添加
-										Log.e(TAGMAIN, "本地存在该条数据： "+tmpDataNet.get(i).toString());
-										addSta = true;
-										break;
-									}
-								}
-								if(!addSta){
-									Log.e(TAGMAIN, "本地不存在该条数据,需要添加至本地： "+data.get(j).toString());
-									LevelSecond tmpData = new LevelSecond(data.get(j).getFatherId(),
-											data.get(j).getObjectId(), data.get(j).getName(), 1, 1);
-									dbHelper.addSecond(tmpData);
-								}
-							}
-						}
-					}
-				}else{
-					Log.e(TAGMAIN, "2222222222222222222222连接服务器失败，获取二级地址失败!!!!!!!!" +e.getMessage()+","+e.getErrorCode());
-				}
-			}
-		});
-	}
-	//同步三级地址信息
-	private void syncThird() {
-		Log.e(TAGMAIN, "请求服务器三级地址----------3333333333");
-		BmobQuery<ConnType>query = new BmobQuery<ConnType>();
-		query.addWhereEqualTo("delSta", 1);
-		query.findObjects(new FindListener<ConnType>() {
-			@Override
-			public void done(List<ConnType> data, BmobException e) {
-				if(e == null){
-					Log.e(TAGMAIN, "从服务器获取三级目录信息数量："+data.size());
-					//更新数据库没用信息    服务器已删除  本地还有
-					List<LevelThird>tmpDataList = dbHelper.getThirdData();
-					if(tmpDataList == null){
-						Log.e(TAGMAIN, "数据库没有三级地址数据");
-						Log.e(TAGMAIN, "向本地数据库添加"+data.size()+"条，三级数据");
-						for(int i=0;i<data.size();i++){
-							LevelThird tmpData = new LevelThird(data.get(i).getFatherId(),
-									data.get(i).getObjectId(), data.get(i).getConn(), 2,
-									data.get(i).getInfo(), data.get(i).getPosLat(),
-									data.get(i).getPosLong(), data.get(i).getNetImgsPath());
-							Log.e(TAGMAIN, "向数据库添加的新数据是： "+data.get(i).toString());
-							dbHelper.addThird(tmpData);
-						}
-					}
-					else{
-						Log.e(TAGMAIN, "本地数据库获取三级目录信息数量："+tmpDataList.size());
-						for(int i=0;i<tmpDataList.size();){
-							Log.e(TAGMAIN, "本地数据库获取三级目录信息 ,第："+i+" 条信息时： "+tmpDataList.get(i).toString());
-							boolean deleSta = false;
-							for(int j=0;j<data.size();j++){
-								if(data.get(j).getObjectId().equals(tmpDataList.get(i).getID())){
-									//有用数据
-									Log.e(TAGMAIN, "该条数据有用："+data.get(j).toString());
-									deleSta = true;
-									//更新
-									Log.e(TAGMAIN, "更新数据");
-									dbHelper.updataThirdInfo(new LevelThird(
-											data.get(i).getFatherId(),
-											data.get(i).getObjectId(),
-											data.get(i).getConn(),
-											data.get(i).getLevel(),
-											data.get(i).getInfo(),
-											data.get(i).getPosLat(),
-											data.get(i).getPosLong(),
-											data.get(i).getNetImgsPath()));
-									break;
-								}
-							}if(!deleSta){
-								Log.e(TAGMAIN, "服务器已删除该条数据: "+tmpDataList.get(i).toString());
-								dbHelper.deleteThird(tmpDataList.get(i).getID());
-								tmpDataList.remove(i);
-							}else{
-								i++;
-							}
-						}
-						//更新本地数据库
 
-						if(data.size() > tmpDataList.size()){
-							//要更新本地数据库
-							//添加新数据至服务器
-							for(int i=0;i<data.size();i++){
-								Log.e(TAGMAIN, "服务器三级地址，第 "+i+" 条，数据为： "+data.get(i).toString());
-								boolean addSta = false;
-								for(int j=0;j<tmpDataList.size();j++){
-									if(tmpDataList.get(j).getID().equals(data.get(i).getObjectId())){
-										//不是新数据
-										addSta = true;
-										Log.e(TAGMAIN, "不是新数据："+data.get(i).toString());
-										break;
-									}
-								}
-								if(!addSta){
-									LevelThird tmpData = new LevelThird(data.get(i).getFatherId(),
-											data.get(i).getObjectId(), data.get(i).getConn(), 2,
-											data.get(i).getInfo(), data.get(i).getPosLat(),
-											data.get(i).getPosLong(), data.get(i).getNetImgsPath());
-									Log.e(TAGMAIN, "向数据库添加的新数据是： "+data.get(i).toString());
-									dbHelper.addThird(tmpData);
-								}
-							}
-						}
-					}
-				}else{
-					Log.e(TAGMAIN, "2222222222222222222222222获取三级地址失败");
-				}
-			}
-		});
-	}
 	private void initLocListView() {
-		MyPublicData.levelFirst = new ArrayList<ConnType>();
-		MyPublicData.levelSond = new ArrayList<ConnType>();
-		MyPublicData.levelThird = new ArrayList<ConnType>();
-		SharedPreferences sharedPreferences = this.getSharedPreferences("com.ppl.sxgtqx", MODE_PRIVATE);
-		boolean isFirstRun = sharedPreferences.getBoolean("isFirstRun", true);
-		Editor editor = sharedPreferences.edit();
-		if (isFirstRun)
-		{
-			Log.d("debug", "第一次运行");
-			editor.putBoolean("isFirstRun", false);
-			editor.commit();
-			dbHelper.addFirst(new LevelRoot("aaaa49a5f6", "太原供电段", 0,1));
-			dbHelper.addSecond(new LevelSecond("aaaa49a5f6", "ZjJEGGGI", "晋中高铁供电车间", 1,1));
-			dbHelper.addSecond(new LevelSecond("aaaa49a5f6", "46cce70cb1", "忻州西高铁供电车间", 1,1));
-			dbHelper.addThird(new LevelThird("ZjJEGGGI", "7d8b932986", "晋中供电车间", 2, "晋中供电车间设有晋中网电工区、晋中变电工区2个班组，祁县东、太谷西站2个应急点，晋中、祁县东2座10KV无人值守配电室，晋中、祁县东2座牵引变电所，郝村、东观、新胜3座无人值守AT所，太原南、南郭2座无人值守分区所，和晋中、太谷西、祁县东3座给水所，主要担负着大西高铁太原南大西场（含）-平遥古城站(不含)间4个站场、4个区间，共计91.6正线公里的高铁牵引供电、电力、给水设备的运行、维护和应急处理任务，共管理接触网设备260条公里。"
-					, 37.695969, 112.657084, ""));
-			dbHelper.addThird(new LevelThird("ZjJEGGGI", "5aea39bafa", "祁县东变电所", 2, "车间设有晋中网电工区、晋中变电工区2个班组，祁县东、太谷西站。"
-					, 37.319237, 112.354332, ""));
-			dbHelper.addThird(new LevelThird("ZjJEGGGI", "xFup777Z", "南郭分区所", 2, ""
-					, 37.4848, 112.558225, ""));
-			dbHelper.addThird(new LevelThird("ZjJEGGGI", "7XVy666F", "郝村AT所", 2, ""
-					, 37.591771, 112.593876, ""));
-			dbHelper.addThird(new LevelThird("ZjJEGGGI", "key4222L", "东观AT所", 2, ""
-					, 37.409576, 112.455842, ""));
-			dbHelper.addThird(new LevelThird("ZjJEGGGI", "NbDZ333G", "新胜AT所", 2, ""
-					, 27.173662, 118.390551, ""));
-		} else{
-			Log.d("debug", "不是第一次运行");
-		}
-
-		MyPublicData.rootData = dbHelper.getRootData();
-		Log.e(TAGMAIN, "MyPublicData.rootData.size():"+MyPublicData.rootData.size());
-		MyPublicData.levelFirst.add(new ConnType(0, 0, "我的位置", "0",1));
-		//从本地数据哭中获取一级根目录内容
-		for(int i=0;i<MyPublicData.rootData.size();i++){
-			Log.e(TAGMAIN, MyPublicData.rootData.get(i).toString());
-			MyPublicData.levelFirst.add(new ConnType(1, 0,
-					MyPublicData.rootData.get(i).getName(), MyPublicData.rootData.get(i).getID(),1));
-		}
-		MyPublicData.levelFirst.add(new ConnType(2, 0, "添加", "",1));
-		Log.e(TAGMAIN, "MyPublicData.rootData.size():"+MyPublicData.rootData.size());
-
-		MyPublicData.secondData = new ArrayList<LevelSecond>();
-		MyPublicData.thirdData = new ArrayList<LevelThird>();
-		//		MyPublicData.levelSond.add(new ConnType(2, 1, "添加", "",1));
-		Log.e(TAGMAIN, "MyPublicData.levelSond.size():"+MyPublicData.levelSond.size());
-		MyPublicData.levelThird.add(new ConnType(2, 2, "新建", "",1));
-		Log.e(TAGMAIN, "MyPublicData.levelThird.size():"+MyPublicData.levelThird.size());
-
 		//初始化候选列表
 		firstAdp = new MainSprinAdapter(MyPublicData.levelFirst, getApplicationContext());
 		seceAdp = new MainSprinAdapter(MyPublicData.levelSond, getApplicationContext());
 		thirdAdp = new MainSprinAdapter(MyPublicData.levelThird, getApplicationContext());
+		reThirdAdp = new MainSprinAdapter(MyPublicData.levelThird, getApplicationContext());
 
 		lv_level_first.setAdapter(firstAdp);
 		lv_level_second.setAdapter(seceAdp);
 		lv_level_third.setAdapter(thirdAdp);
+		lv_level_third_re.setAdapter(reThirdAdp);
 
 		lv_level_first.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
 				level1 = position;
-				//				for(int i=0;i<parent.getCount();i++){
-				//					View v=parent.getChildAt(i);
-				//					v.setBackgroundColor(Color.WHITE);
-				//				}
 				System.out.println("=============>>>>>>>>>>>点击一级listView");
 				if(position == 0){
 					System.out.println("=============>>>>>>>>>>>点击我的位置");
@@ -1057,6 +662,7 @@ import cn.bmob.v3.listener.QueryListener;
 		ll_selece_dis = (LinearLayout) findViewById(R.id.ll_selece_dis);
 		lv_level_first = (ListView) findViewById(R.id.lv_level_first);
 		lv_level_second = (ListView) findViewById(R.id.lv_level_second);
+		lv_level_third_re = (ListView) findViewById(R.id.lv_level_third_re);
 		lv_level_third = (ListView) findViewById(R.id.lv_level_third);
 		iv_down = (ImageView) findViewById(R.id.iv_down);
 		ib_set = (ImageButton) findViewById(R.id.ib_set);
@@ -1192,6 +798,33 @@ import cn.bmob.v3.listener.QueryListener;
 			}else if(NOTIFY_THRID_ADP == msg.what){
 				//更新三级目录内容
 				thirdAdp.notifyDataSetChanged();
+			}else if(msg.what == DownFile.FILE_DOWN_PROGRESS){
+				mDialog.setProcess((Integer) msg.obj);
+			}else if(msg.what == DownFile.FILE_DOWN_COMPLETED){
+				mDialog.dismiss();
+				File newApk = new File((String) msg.obj);
+				if(!newApk.exists()){
+					myToast.show("下载安装包失败");
+					return;
+				}
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+					Log.w("downFile", "版本大于 N ，开始使用 fileProvider 进行安装");
+					intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+					Uri contentUri = FileProvider.getUriForFile(
+							getBaseContext()
+							, "com.ppl.sxgtqx.fileprovider"
+							, newApk);
+					intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
+				} else {
+					Log.w("downFile", "正常进行安装");
+					intent.setDataAndType(Uri.fromFile(newApk), "application/vnd.android.package-archive");
+				}
+				startActivity(intent);
+			}else if(msg.what == DownFile.FILE_DOWN_ERROR){
+				mDialog.dismiss();
+				myToast.show("下载安装包失败");
 			}
 		}
 
@@ -1258,6 +891,7 @@ import cn.bmob.v3.listener.QueryListener;
 			ib_naviga.setVisibility(View.VISIBLE);
 			showSlefPos();
 		}
+		initSQL();
 	}
 	@Override
 	protected void onPause() {
@@ -1333,12 +967,14 @@ import cn.bmob.v3.listener.QueryListener;
 					getRootDataSQL();
 					ll_selece_dis.setVisibility(View.VISIBLE);
 					lv_level_first.setVisibility(View.VISIBLE);
+					lv_level_third_re.setVisibility(View.GONE);
 					lv_level_third.setVisibility(View.GONE);
 					lv_level_second.setVisibility(View.GONE);
 				}else{
 					lv_level_third.setVisibility(View.GONE);
 					lv_level_second.setVisibility(View.GONE);
 					ll_selece_dis.setVisibility(View.GONE);
+					lv_level_third_re.setVisibility(View.GONE);
 				}
 				break;
 			case R.id.ib_set:
