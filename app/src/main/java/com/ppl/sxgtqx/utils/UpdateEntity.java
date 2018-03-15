@@ -12,6 +12,7 @@ public class UpdateEntity extends BmobObject {
 	private int versionCode;
 	private String versionDecs;
 	private String updateDescroption;
+	private String focsUpdate = "N";		//Y 强制升级
 
 	public String getApkUrl() {
 		return apkUrl;
@@ -43,5 +44,13 @@ public class UpdateEntity extends BmobObject {
 
 	public void setUpdateDescroption(String updateDescroption) {
 		this.updateDescroption = updateDescroption;
+	}
+
+	public String getFocsUpdate() {
+		return focsUpdate;
+	}
+
+	public void setFocsUpdate(String focsUpdate) {
+		this.focsUpdate = focsUpdate;
 	}
 }

@@ -218,6 +218,7 @@ import cn.bmob.v3.listener.QueryListener;
 						String desc = object.getUpdateDescroption();
 						Log.d("downFile","versionName: "+versionName+",versioncode: "+versioncode);
 						Log.d("downFile","msg: "+desc);
+						Log.d("downFile","focsState: "+object.getFocsUpdate());
 
 						if(versioncode >= 1){
 							//校验是否更新
@@ -247,14 +248,35 @@ import cn.bmob.v3.listener.QueryListener;
 									}
 								});
 
-								//强制更新
-								mDialog.setNeutralButton(R.string.immediately_update, new View.OnClickListener() {
-									@Override
-									public void onClick(View v) {
-										Log.d("downFile","开始下载");
-										downNewFile(object.getApkUrl());
-									}
-								});
+
+								if(!object.getFocsUpdate().equalsIgnoreCase("Y")){
+									mDialog.setNegativeButton(R.string.cancel, new OnClickListener() {
+										@Override
+										public void onClick(View v) {
+											//非强制升级 点击了取消
+											mDialog.dismiss();
+										}
+									});
+
+									mDialog.setPositiveButton("升级", new View.OnClickListener() {
+										@Override
+										public void onClick(View v) {
+											Log.d("downFile","开始下载");
+											downNewFile(object.getApkUrl());
+										}
+									});
+								}else{
+									//强制更新
+									mDialog.setNeutralButton(R.string.immediately_update, new View.OnClickListener() {
+										@Override
+										public void onClick(View v) {
+											Log.d("downFile","开始下载");
+											downNewFile(object.getApkUrl());
+										}
+									});
+								}
+
+
 								mDialog.show();
 							}
 						}

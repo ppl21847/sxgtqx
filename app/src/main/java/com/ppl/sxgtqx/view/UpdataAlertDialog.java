@@ -97,9 +97,6 @@ public class UpdataAlertDialog extends Dialog {
         mBottomBar.setVisibility(View.VISIBLE);
         mPositiveBtn.setVisibility(View.VISIBLE);
         mNegativeBtn.setVisibility(View.VISIBLE);
-        if (mNegativeBtn.getVisibility() == View.VISIBLE) {
-            mNegativeBtn.setVisibility(View.GONE);
-        }
 
         if (!TextUtils.isEmpty(resId)) {
             mPositiveBtn.setText(resId);

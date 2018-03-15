@@ -101,7 +101,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.aty_setting_new);
-		
+
 		initView();
 		initData();
 		initLoginShow();
@@ -131,7 +131,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 		tv_login_sta = (TextView) findViewById(R.id.tv_login_sta);
 		tv_login_disc = (TextView) findViewById(R.id.tv_login_disc);
 		bt_login = (Button) findViewById(R.id.bt_login);
-		
+
 		sv = (ScrollView) findViewById(R.id.sv);
 	}
 
@@ -157,7 +157,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 	private void initData() {
 		sp = getSharedPreferences("userInfo", Context.MODE_PRIVATE);
 		sv.smoothScrollTo(0, 0);
-		
+
 		myToast = new MyToast(Setting.this, 5000, Gravity.BOTTOM);
 		tv_level_frist.setText("一级地址");
 		tv_level_second.setText("二级地址");
@@ -173,7 +173,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View arg1, int arg2,
-					long arg3) {
+									long arg3) {
 				for(int i=0;i<parent.getCount();i++){
 					View v=parent.getChildAt(i);
 					v.setBackgroundColor(Color.WHITE);
@@ -222,7 +222,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 		lv_map_contry.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View view, final int arg2,
-					long arg3) {
+									long arg3) {
 				tv_load = (TextView) view.findViewById(R.id.tv_downLoad);
 				iv_sta = (ImageView) view.findViewById(R.id.iv_dwon_sta);
 			}
@@ -247,7 +247,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 		//从本地数据哭中获取一级根目录内容
 		for(int i=0;i<rootData.size();i++){
 			Log.e(TAG, rootData.get(i).toString());
-			posData.add(new ConnType(1, 0, 
+			posData.add(new ConnType(1, 0,
 					rootData.get(i).getName(),rootData.get(i).getID(),1));
 		}
 		posData.add(new ConnType(2, 0, "添加", "",1));
@@ -265,7 +265,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 		lv_pos_manage.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View view, final int arg2,
-					long arg3) {
+									long arg3) {
 				Log.e(TAG, "点击了第： "+arg2 +" 条数据");
 				ConnType clickData = posData.get(arg2);
 
@@ -348,33 +348,33 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 			Log.e(TAG,"点击的二级：Id: "+ fatherIdSecond+",内容： "+posData.get(position).getConn());
 		}
 		switch (v.getId()) {
-		case R.id.ib_item_add:
-			Log.e(TAG, "点击了删除按钮");
-			//删除该条信息  
-			deleteItem(posData.get(position),position);
-			break;
-		case R.id.ib_next:
-			Log.e(TAG, "点击了编辑按钮");
+			case R.id.ib_item_add:
+				Log.e(TAG, "点击了删除按钮");
+				//删除该条信息
+				deleteItem(posData.get(position),position);
+				break;
+			case R.id.ib_next:
+				Log.e(TAG, "点击了编辑按钮");
 
 
-			editItem(posData.get(position),position);
-			break;
-		case R.id.tv_sub_selcet_conn:
-			Log.e(TAG, "点击了文字查看下一条数据");
-			if(posData.get(position).getLevel() == 0){
-				//根级请求二级
-				tv_level_frist.setText(posData.get(position).getConn());
-				tv_level_second.setText("二级目录");
-				tv_level_second.setVisibility(View.VISIBLE);
-			}else{
-				tv_level_second.setText("二级目录");
-				tv_level_second.setVisibility(View.VISIBLE);
-				tv_level_second.setText(posData.get(position).getConn());
-			}
-			selectNextData(posData.get(position),position);
-			break;
-		default:
-			break;
+				editItem(posData.get(position),position);
+				break;
+			case R.id.tv_sub_selcet_conn:
+				Log.e(TAG, "点击了文字查看下一条数据");
+				if(posData.get(position).getLevel() == 0){
+					//根级请求二级
+					tv_level_frist.setText(posData.get(position).getConn());
+					tv_level_second.setText("二级目录");
+					tv_level_second.setVisibility(View.VISIBLE);
+				}else{
+					tv_level_second.setText("二级目录");
+					tv_level_second.setVisibility(View.VISIBLE);
+					tv_level_second.setText(posData.get(position).getConn());
+				}
+				selectNextData(posData.get(position),position);
+				break;
+			default:
+				break;
 		}
 	}
 	/**
@@ -417,8 +417,8 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 		if(tmpData.size() > 0){
 			for(int i=0;i<tmpData.size();i++){
 				Log.e(TAG, "根据二级目录Id: "+selfId+ " 获取到的三级目录信息的第： "+i+" 条信息是： "+tmpData.get(i).toString());
-				posData.add(new ConnType(1, 2, 
-						tmpData.get(i).getName(), tmpData.get(i).getFatherId(), 
+				posData.add(new ConnType(1, 2,
+						tmpData.get(i).getName(), tmpData.get(i).getFatherId(),
 						tmpData.get(i).getID(), tmpData.get(i).getPosLat(),
 						tmpData.get(i).getPosLong(), 1));
 			}
@@ -446,8 +446,8 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 		if(tmpData.size() > 0){
 			for(int i=0;i<tmpData.size();i++){
 				Log.e(TAG, "根据根目录Id: "+selfId+ " 获取到的二级目录信息的第： "+i+" 条信息是： "+tmpData.get(i).toString());
-				posData.add(new ConnType(1, 1, 
-						tmpData.get(i).getName(),tmpData.get(i).getFatherId(), 
+				posData.add(new ConnType(1, 1,
+						tmpData.get(i).getName(),tmpData.get(i).getFatherId(),
 						tmpData.get(i).getID(), 1));
 			}
 		}else{
@@ -521,11 +521,11 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 			Log.e(TAG, "level:"+level+",fatherConn:"+fatherConn);
 		}
 
-		final AlertDialog alertDialog = new AlertDialog.Builder(Setting.this).create();  
-		alertDialog.show();  
-		Window window = alertDialog.getWindow(); 
+		final AlertDialog alertDialog = new AlertDialog.Builder(Setting.this).create();
+		alertDialog.show();
+		Window window = alertDialog.getWindow();
 		window.clearFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-		window.setContentView(R.layout.dialog_edit_add);  
+		window.setContentView(R.layout.dialog_edit_add);
 
 		TextView tv_title =  (TextView) window.findViewById(R.id.tv_dialog_title);
 		final EditText ed_conn = (EditText) window.findViewById(R.id.et_level_conn);
@@ -565,10 +565,10 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 
 		if(addSta){
 			Log.e(TAG, "添加");
-			Drawable drawable= getResources().getDrawable(R.drawable.icon_bulue_bar_newshop);  
+			Drawable drawable= getResources().getDrawable(R.drawable.icon_bulue_bar_newshop);
 			/// 这一步必须要做,否则不会显示.  
-			drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());  
-			tv_title.setCompoundDrawables(drawable,null,null,null);  
+			drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+			tv_title.setCompoundDrawables(drawable,null,null,null);
 
 			if(level == 0){
 				Log.e(TAG, "一级");
@@ -582,9 +582,9 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 			ed_conn.setText(clickData.getConn());
 
 			Log.e(TAG, "编辑");
-			Drawable drawable= getResources().getDrawable(R.drawable.extra_info_edit);  
+			Drawable drawable= getResources().getDrawable(R.drawable.extra_info_edit);
 			/// 这一步必须要做,否则不会显示.  
-			drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());  
+			drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
 			tv_title.setCompoundDrawables(drawable,null,null,null);
 
 			if(level == 0){
@@ -598,7 +598,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 	}
 
 	private void addOrEditSecond(String conn, ConnType clickData,
-			boolean addSta, int arg2) {
+								 boolean addSta, int arg2) {
 		clickData.setConn(conn);
 		LevelSecond tmp = new LevelSecond();
 		tmp.setFatherId(clickData.getFatherId());
@@ -616,7 +616,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 	}
 
 	protected void addOrEditFirst(String conn, ConnType clickData,
-			boolean addSta,int arg2) {
+								  boolean addSta,int arg2) {
 		final LevelRoot tmp = new LevelRoot();
 		tmp.setID(clickData.getSelfId());
 		tmp.setName(conn);
@@ -647,7 +647,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 				Message msg = new Message();
 				if(e == null){
 					posData.get(arg2).setConn(clickData.getConn());
-					BNDemoMainActivity.dbHelper.updataSecondInfo(new LevelSecond(clickData.getFatherId(), 
+					BNDemoMainActivity.dbHelper.updataSecondInfo(new LevelSecond(clickData.getFatherId(),
 							clickData.getSelfId(), clickData.getConn(), 1, 1));
 					handler.sendEmptyMessage(UPDATA_ADAPTER);
 					msg.obj = "更新二级目录："+clickData.getConn()+" 成功";
@@ -767,29 +767,29 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 			msgShow = tv_level_frist.getText().toString().trim()+"\n"+tv_level_second.getText().toString().trim()+"\n"+clickData.getConn();
 		}
 		Dialog ad = new AlertDialog.Builder(this)
-		.setTitle("确认删除该条信息？")
-		.setIcon(R.drawable.webshell_notification_warning)
-		.setMessage(msgShow)
-		.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface arg0, int arg1) {
-				/**
-				 * 删除根级目录信息
-				 * */
-				if(clickData.getLevel() == 0){
-					deleteFirst(clickData,position);
-				}else if(clickData.getLevel() == 1){
-					deleteSecond(clickData,position);
-				}else{
-					deleteThird(clickData,position);
-				}
-			}
-		}).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+				.setTitle("确认删除该条信息？")
+				.setIcon(R.drawable.webshell_notification_warning)
+				.setMessage(msgShow)
+				.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						/**
+						 * 删除根级目录信息
+						 * */
+						if(clickData.getLevel() == 0){
+							deleteFirst(clickData,position);
+						}else if(clickData.getLevel() == 1){
+							deleteSecond(clickData,position);
+						}else{
+							deleteThird(clickData,position);
+						}
+					}
+				}).setNegativeButton("取消", new DialogInterface.OnClickListener() {
 
-			@Override
-			public void onClick(DialogInterface arg0, int arg1) {
-			}
-		}).create();
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+					}
+				}).create();
 		ad.show();
 	}
 
@@ -897,28 +897,28 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 	@Override
 	public void onClick(View arg0) {
 		switch (arg0.getId()) {
-		case R.id.ib_set_back:
-			finish();
-			onDestroy();
-			break;
-		case R.id.tv_level_frist:
-			tmpPos = 1;
-			tv_level_frist.setText("一级目录");
-			tv_level_second.setVisibility(View.GONE);
-			Log.e(TAG, "请求根级目录");
-			getRootData();
-			break;
-		case R.id.tv_level_second:
-			tmpPos = 2;
-			tv_level_second.setText("二级目录");
-			Log.e(TAG, "请求二级目录，一级的 Id： "+fatherIdFirst);
-			getSecondData(fatherIdFirst);
-			break;
-		case R.id.bt_login:
-			userLogin();
-			break;
-		default:
-			break;
+			case R.id.ib_set_back:
+				finish();
+				onDestroy();
+				break;
+			case R.id.tv_level_frist:
+				tmpPos = 1;
+				tv_level_frist.setText("一级目录");
+				tv_level_second.setVisibility(View.GONE);
+				Log.e(TAG, "请求根级目录");
+				getRootData();
+				break;
+			case R.id.tv_level_second:
+				tmpPos = 2;
+				tv_level_second.setText("二级目录");
+				Log.e(TAG, "请求二级目录，一级的 Id： "+fatherIdFirst);
+				getSecondData(fatherIdFirst);
+				break;
+			case R.id.bt_login:
+				userLogin();
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -933,35 +933,36 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 	}
 
 	private void gotoQuit() {
-		final AlertDialog alertDialog = new AlertDialog.Builder(Setting.this).create();  
-		alertDialog.show();  
-		Window window = alertDialog.getWindow(); 
+		final AlertDialog alertDialog = new AlertDialog.Builder(Setting.this).create();
+		alertDialog.show();
+		Window window = alertDialog.getWindow();
 		window.clearFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-		window.setContentView(R.layout.dialog_quit_login);  
+		window.setContentView(R.layout.dialog_quit_login);
 
 		window.findViewById(R.id.bt_login).setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-					sp.edit().putLong(LocationApplication.NOW, 0L).commit();
-					LocationApplication.adminLoginSta = false;
-					tmpPos = 1; 
-					//显示地点管理 并刷新显示
-					data.remove(data.size()-1);
-					adapter.notifyDataSetChanged();
-					initLoginShow();
-					alertDialog.dismiss();
+				sp.edit().putLong(LocationApplication.NOW, 0L).commit();
+				LocationApplication.adminLoginSta = false;
+				tmpPos = 1;
+				//显示地点管理 并刷新显示
+				data.remove(data.size()-1);
+				adapter.notifyDataSetChanged();
+				initLoginShow();
+				ll_pos_manage.setVisibility(View.GONE);
+				alertDialog.dismiss();
 			}
 		});
 	}
 
 	private void goToLogin() {
-		final AlertDialog alertDialog = new AlertDialog.Builder(Setting.this).create();  
-		alertDialog.show();  
-		Window window = alertDialog.getWindow(); 
+		final AlertDialog alertDialog = new AlertDialog.Builder(Setting.this).create();
+		alertDialog.show();
+		Window window = alertDialog.getWindow();
 		window.clearFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-		window.setContentView(R.layout.dialog_auth_info);  
+		window.setContentView(R.layout.dialog_auth_info);
 
 		final EditText et_userName = (EditText) window.findViewById(R.id.username);
 		final EditText et_passWord = (EditText) window.findViewById(R.id.userpassword);
@@ -977,7 +978,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 					Long curTime = System.currentTimeMillis();
 					sp.edit().putLong(LocationApplication.NOW, curTime).commit();
 					LocationApplication.adminLoginSta = true;
-					
+
 					//显示地点管理 并刷新显示
 					SetData tmp1= new SetData();
 					tmp1.setLogoId(R.drawable.icon_usercenter_address);
@@ -985,9 +986,9 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 					tmp1.setConn("添加或删除或修改地点信息");
 					data.add(tmp1);
 					adapter.notifyDataSetChanged();
-					
+
 					initLoginShow();
-					
+
 					alertDialog.dismiss();
 				}else{
 					Toast.makeText(getApplicationContext(), "账号或密码错误！", Toast.LENGTH_LONG).show();
@@ -999,17 +1000,17 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 	private Handler handler = new Handler(){
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case UPDATA_ADAPTER:
-				adapterPos.notifyDataSetChanged();
-				break;
-			case DELETE_FILUE:
-				toast("删除失败，请检查网络连接!");
-				break;
-			case SHOW_TOAST:
-				toast((String)msg.obj);
-				break;
-			default:
-				break;
+				case UPDATA_ADAPTER:
+					adapterPos.notifyDataSetChanged();
+					break;
+				case DELETE_FILUE:
+					toast("删除失败，请检查网络连接!");
+					break;
+				case SHOW_TOAST:
+					toast((String)msg.obj);
+					break;
+				default:
+					break;
 			}
 		}
 	};
@@ -1019,34 +1020,34 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 	@Override
 	public void onGetOfflineMapState(int type, int state) {
 		switch (type) {
-		case MKOfflineMap.TYPE_DOWNLOAD_UPDATE: {
-			MKOLUpdateElement update = mOffline.getUpdateInfo(state);
-			// 处理下载进度更新提示
-			if (update != null) {
-				tv_load.setText(String.format("%s: %d%%", "正在下载",
-						update.ratio));
-				if(update.ratio == 100){
-					tv_load.setText("已下载");
-					for(int i=0;i<cityData.size();i++){
-						if(cityData.get(i).getCityId() == update.cityID){
-							cityData.get(i).setEixt(true);
-							break;
+			case MKOfflineMap.TYPE_DOWNLOAD_UPDATE: {
+				MKOLUpdateElement update = mOffline.getUpdateInfo(state);
+				// 处理下载进度更新提示
+				if (update != null) {
+					tv_load.setText(String.format("%s: %d%%", "正在下载",
+							update.ratio));
+					if(update.ratio == 100){
+						tv_load.setText("已下载");
+						for(int i=0;i<cityData.size();i++){
+							if(cityData.get(i).getCityId() == update.cityID){
+								cityData.get(i).setEixt(true);
+								break;
+							}
 						}
+						cityAdapter.notifyDataSetChanged();
 					}
-					cityAdapter.notifyDataSetChanged();
 				}
 			}
-		}
-		break;
-		case MKOfflineMap.TYPE_NEW_OFFLINE:
-			// 有新离线地图安装
-			Log.d("OfflineDemo", String.format("add offlinemap num:%d", state));
 			break;
-		case MKOfflineMap.TYPE_VER_UPDATE:
+			case MKOfflineMap.TYPE_NEW_OFFLINE:
+				// 有新离线地图安装
+				Log.d("OfflineDemo", String.format("add offlinemap num:%d", state));
+				break;
+			case MKOfflineMap.TYPE_VER_UPDATE:
 
-			break;
-		default:
-			break;
+				break;
+			default:
+				break;
 		}
 	}
 
