@@ -90,66 +90,16 @@ public class MyPublicData {
 				if(e==null){
 					Log.e(TAG, "get LevelRoot data.size():"+data.size());
 					List<LevelRoot>tmpRoot = dbHelper.getRootData();
-					if(tmpRoot == null){
-						for(int i=0;i<data.size();i++){
-							Log.e(TAG, "get LevelRoot data("+i+"):"+data.get(i).toString());
-							Log.e(TAG, "添加至本地数据库: "+data.get(i).toString());
-							LevelRoot tmpData = new LevelRoot(data.get(i).getObjectId(),
-									data.get(i).getName(), 0, 1);
-							//添加至本地数据库
-							dbHelper.addFirst(tmpData);
-						}
-					}else{
-						//更新数据库
-						Log.e(TAG, "服务器端根木录有删除位置信息删除前数据： "+tmpRoot.size());
-						for(int j=0;j<tmpRoot.size();){
-							Log.e(TAG, j+"  : " +tmpRoot.get(j).toString());
-							boolean findSta = true;
-							for(int i=0;i<data.size();i++){
-								Log.e(TAG, i+"  : " +data.get(i).toString());
-								if(tmpRoot.get(j).getID().equals(
-										data.get(i).getObjectId())){
-									findSta = false;
-									Log.e(TAG, "存在该条数据，更新");
-									dbHelper.updataFirstInfo(new LevelRoot(
-											data.get(i).getObjectId(),
-											data.get(i).getName(),
-											data.get(i).getLevel(),
-											data.get(i).getDelSta()));
-								}
-							}
-							if(findSta){
-								//服务器已删除该条数据
-								Log.e(TAG, "服务器已删除该条数据： "+tmpRoot.get(j).toString());
-								dbHelper.deleteRoot(tmpRoot.get(j).getID());
-								tmpRoot.remove(j);
-							}else{
-								j++;
-							}
-						}
-						//保存至本地数据库
-						if(data.size() > tmpRoot.size()){
-							for(int i=0;i<data.size();i++){
-								Log.e(TAG, "服务器一级地址，第 "+i+" 条，数据为： "+data.get(i).toString());
-								Log.e(TAG, "get LevelRoot data("+i+"):"+data.get(i).toString());
-								//有用位置 未被删除
-								boolean isNewSta = false;
-								for(int j=0;j<tmpRoot.size();j++){
-									if(tmpRoot.get(j).getID().equals(
-											data.get(i).getObjectId())){
-										isNewSta = true;
-										break;
-									}
-								}
-								if(!isNewSta){
-									Log.e(TAG, "添加至本地数据库: "+data.get(i).toString());
-									LevelRoot tmpData = new LevelRoot(data.get(i).getObjectId(),
-											data.get(i).getName(), 0, 1);
-									//添加至本地数据库
-									dbHelper.addFirst(tmpData);
-								}
-							}
-						}
+					if(tmpRoot != null){
+						dbHelper.clearThirdData();
+					}
+					for(int i=0;i<data.size();i++){
+						Log.e(TAG, "get LevelRoot data("+i+"):"+data.get(i).toString());
+						Log.e(TAG, "添加至本地数据库: "+data.get(i).toString());
+						LevelRoot tmpData = new LevelRoot(data.get(i).getObjectId(),
+								data.get(i).getName(), 0, 1);
+						//添加至本地数据库
+						dbHelper.addFirst(tmpData);
 					}
 				}else{
 					Log.e(TAG, "网络连接失败，获取一级地址失败");
@@ -175,66 +125,17 @@ public class MyPublicData {
 					//更新本地数据库		服务器端有数据删除，本地需要删除
 					List<LevelSecond>tmpDataNet = dbHelper.getSecondData();
 
-					if(tmpDataNet == null){
-						Log.e(TAG, "本地数据库没有二级地址");
-						//添加新数据
-						for(int j=0;j<data.size();j++){
-							Log.e(TAG, "本地不存在该条数据,需要添加至本地： "+data.get(j).toString());
-							LevelSecond tmpData = new LevelSecond(data.get(j).getFatherId(),
-									data.get(j).getObjectId(), data.get(j).getName(), 1, 1);
-							Log.e(TAG, "像数据库添加的数据为  ： "+tmpData.toString());
-							dbHelper.addSecond(tmpData);
-						}
-					}else{
-						Log.e(TAG, "本地数据库二级地址有："+tmpDataNet.size()+" 条");
-						for(int i=0;i<tmpDataNet.size();){
-							boolean deleSta = false;
-							for(int j=0;j<data.size();j++){
-								if(tmpDataNet.get(i).getID().equals(data.get(j).getObjectId())){
-									//服务器存在该条数据 不用删除
-									Log.e(TAG, "服务器同样存在该条数据： "+tmpDataNet.get(i).toString());
-									Log.e(TAG, "更新该条数据");
-									dbHelper.updataSecondInfo(new LevelSecond(
-											data.get(j).getFatherId(),
-											data.get(j).getObjectId(),
-											data.get(j).getName(),
-											data.get(j).getLevel(),
-											data.get(j).getDelSta()));
-									deleSta = true;
-									break;
-								}
-							}
-							if(!deleSta){
-								//服务器已经删除该数据
-								Log.e(TAG, "服务器已删除该条数据： "+tmpDataNet.get(i).toString());
-								dbHelper.deleteSecond(tmpDataNet.get(i).getID());
-								tmpDataNet.remove(i);
-							}else{
-								i++;
-							}
-						}
-						//--------->>>>>>>>完成本地数据库数据删除
-						if(data.size() > tmpDataNet.size()){
-							//添加新数据
-							for(int j=0;j<data.size();j++){
-								Log.e(TAG, "服务器二级地址，第 "+j+" 条，数据为： "+data.get(j).toString());
-								boolean addSta = false;
-								for(int i=0;i<tmpDataNet.size();i++){
-									if(tmpDataNet.get(i).getObjectId().equals(data.get(j).getID())){
-										//本地存在 不用新添加
-										Log.e(TAG, "本地存在该条数据： "+tmpDataNet.get(i).toString());
-										addSta = true;
-										break;
-									}
-								}
-								if(!addSta){
-									Log.e(TAG, "本地不存在该条数据,需要添加至本地： "+data.get(j).toString());
-									LevelSecond tmpData = new LevelSecond(data.get(j).getFatherId(),
-											data.get(j).getObjectId(), data.get(j).getName(), 1, 1);
-									dbHelper.addSecond(tmpData);
-								}
-							}
-						}
+					if(tmpDataNet != null){
+						dbHelper.clearSecondData();
+					}
+					Log.e(TAG, "本地数据库没有二级地址");
+					//添加新数据
+					for(int j=0;j<data.size();j++){
+						Log.e(TAG, "本地不存在该条数据,需要添加至本地： "+data.get(j).toString());
+						LevelSecond tmpData = new LevelSecond(data.get(j).getFatherId(),
+								data.get(j).getObjectId(), data.get(j).getName(), 1, 1);
+						Log.e(TAG, "像数据库添加的数据为  ： "+tmpData.toString());
+						dbHelper.addSecond(tmpData);
 					}
 				}else{
 					Log.e(TAG, "2222222222222222222222连接服务器失败，获取二级地址失败!!!!!!!!" +e.getMessage()+","+e.getErrorCode());
@@ -255,75 +156,18 @@ public class MyPublicData {
 					Log.e(TAG, "从服务器获取三级目录信息数量："+data.size());
 					//更新数据库没用信息    服务器已删除  本地还有
 					List<LevelThird>tmpDataList = dbHelper.getThirdData();
-					if(tmpDataList == null){
-						Log.e(TAG, "数据库没有三级地址数据");
-						Log.e(TAG, "向本地数据库添加"+data.size()+"条，三级数据");
-						for(int i=0;i<data.size();i++){
-							LevelThird tmpData = new LevelThird(data.get(i).getFatherId(),
-									data.get(i).getObjectId(), data.get(i).getConn(), 2,
-									data.get(i).getInfo(), data.get(i).getPosLat(),
-									data.get(i).getPosLong(), data.get(i).getNetImgsPath());
-							Log.e(TAG, "向数据库添加的新数据是： "+data.get(i).toString());
-							dbHelper.addThird(tmpData);
-						}
+					if(tmpDataList != null){
+						dbHelper.clearFirstData();
 					}
-					else{
-						Log.e(TAG, "本地数据库获取三级目录信息数量："+tmpDataList.size());
-						for(int i=0;i<tmpDataList.size();){
-							Log.e(TAG, "本地数据库获取三级目录信息 ,第："+i+" 条信息时： "+tmpDataList.get(i).toString());
-							boolean deleSta = false;
-							for(int j=0;j<data.size();j++){
-								if(data.get(j).getObjectId().equals(tmpDataList.get(i).getID())){
-									//有用数据
-									Log.e(TAG, "该条数据有用："+data.get(j).toString());
-									deleSta = true;
-									//更新
-									Log.e(TAG, "更新数据");
-									dbHelper.updataThirdInfo(new LevelThird(
-											data.get(i).getFatherId(),
-											data.get(i).getObjectId(),
-											data.get(i).getConn(),
-											data.get(i).getLevel(),
-											data.get(i).getInfo(),
-											data.get(i).getPosLat(),
-											data.get(i).getPosLong(),
-											data.get(i).getNetImgsPath()));
-									break;
-								}
-							}if(!deleSta){
-								Log.e(TAG, "服务器已删除该条数据: "+tmpDataList.get(i).toString());
-								dbHelper.deleteThird(tmpDataList.get(i).getID());
-								tmpDataList.remove(i);
-							}else{
-								i++;
-							}
-						}
-						//更新本地数据库
-
-						if(data.size() > tmpDataList.size()){
-							//要更新本地数据库
-							//添加新数据至服务器
-							for(int i=0;i<data.size();i++){
-								Log.e(TAG, "服务器三级地址，第 "+i+" 条，数据为： "+data.get(i).toString());
-								boolean addSta = false;
-								for(int j=0;j<tmpDataList.size();j++){
-									if(tmpDataList.get(j).getID().equals(data.get(i).getObjectId())){
-										//不是新数据
-										addSta = true;
-										Log.e(TAG, "不是新数据："+data.get(i).toString());
-										break;
-									}
-								}
-								if(!addSta){
-									LevelThird tmpData = new LevelThird(data.get(i).getFatherId(),
-											data.get(i).getObjectId(), data.get(i).getConn(), 2,
-											data.get(i).getInfo(), data.get(i).getPosLat(),
-											data.get(i).getPosLong(), data.get(i).getNetImgsPath());
-									Log.e(TAG, "向数据库添加的新数据是： "+data.get(i).toString());
-									dbHelper.addThird(tmpData);
-								}
-							}
-						}
+					Log.e(TAG, "数据库没有三级地址数据");
+					Log.e(TAG, "向本地数据库添加"+data.size()+"条，三级数据");
+					for(int i=0;i<data.size();i++){
+						LevelThird tmpData = new LevelThird(data.get(i).getFatherId(),data.get(i).getFatherId(),
+								data.get(i).getObjectId(), data.get(i).getConn(), 2,
+								data.get(i).getInfo(), data.get(i).getPosLat(),
+								data.get(i).getPosLong(), data.get(i).getNetImgsPath());
+						Log.e(TAG, "向数据库添加的新数据是： "+data.get(i).toString());
+						dbHelper.addThird(tmpData);
 					}
 				}else{
 					Log.e(TAG, "2222222222222222222222222获取三级地址失败");

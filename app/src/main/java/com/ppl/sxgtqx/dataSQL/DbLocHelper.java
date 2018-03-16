@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.ppl.sxgtqx.utils.LevelReThird;
 import com.ppl.sxgtqx.utils.LevelRoot;
 import com.ppl.sxgtqx.utils.LevelSecond;
 import com.ppl.sxgtqx.utils.LevelThird;
@@ -21,12 +22,33 @@ public class DbLocHelper extends SQLiteOpenHelper {
 	public static final String LEVEL_FRIST_NAME="levelfirst";
 	public static final String LEVEL_SECOND_NAME="levelsecond";
 	public static final String LEVEL_THIRD_NAME="levelthird";
+	public static final String LEVEL_RE_THIRD_NAME="levelrethird";
 	public static final int version=1;
 	private static final String TAG = "DbLocHelper";
 
 	public DbLocHelper(Context context, String name, CursorFactory factory,
 			int version) {
 		super(context, name, factory, version);
+	}
+
+	public void clearFirstData(){
+		SQLiteDatabase db=this.getWritableDatabase();
+		db.execSQL("delete from levelfirst");
+	}
+
+	public void clearSecondData(){
+		SQLiteDatabase db=this.getWritableDatabase();
+		db.execSQL("delete from levelsecond");
+	}
+
+	public void clearThirdData(){
+		SQLiteDatabase db=this.getWritableDatabase();
+		db.execSQL("delete from levelthird");
+	}
+
+	public void clearReThirdData(){
+		SQLiteDatabase db=this.getWritableDatabase();
+		db.execSQL("delete from levelrethird");
 	}
 
 	@Override
@@ -59,13 +81,23 @@ public class DbLocHelper extends SQLiteOpenHelper {
 				"posLong posLong not null," +
 				"imgPath varchar(1000)," +
 				"imgLocPath varchar(1000),"+
-				"fatherId varchar(100) not null)";
+				"fatherId varchar(100) not null),"+
+				"fatherReId varchar(100) not null)";
+		Log.e("DB", thirdSQL);
+		db.execSQL(thirdSQL);
+
+		String reThirdSQL="create table if not exists " +LEVEL_RE_THIRD_NAME+
+				"(dataId integer primary key autoincrement," +
+				"Id varchar(100) not null," +
+				"Name varchar(60) not null," +
+				"info varchar(1000)";
 		Log.e("DB", thirdSQL);
 		db.execSQL(thirdSQL);
 	}
 
 	@Override
-	public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		Log.d(TAG,"oldVersion: "+oldVersion+" , newVersion："+newVersion);
 	}
 
 	public void addFirst(LevelRoot data){
@@ -105,6 +137,18 @@ public class DbLocHelper extends SQLiteOpenHelper {
 		db.insert(LEVEL_THIRD_NAME, null, values);
 		db.close();
 	}
+
+	public void addReThird(LevelReThird data){
+		SQLiteDatabase db=this.getWritableDatabase();
+		Log.e("SQLiteDatabase","SQLiteDatabase");
+		ContentValues values =new ContentValues();
+		values.put("Id", data.getID());
+		values.put("Name", data.getName());
+		values.put("info", data.getInfo());
+		db.insert(LEVEL_RE_THIRD_NAME, null, values);
+		db.close();
+	}
+
 	/**
 	 * 获取根目录下所有数据
 	 * */
@@ -204,6 +248,7 @@ public class DbLocHelper extends SQLiteOpenHelper {
 			while (cursor.moveToNext()) { 
 				info= new LevelThird(
 						cursor.getString(cursor.getColumnIndex("fatherId")),
+						cursor.getString(cursor.getColumnIndex("fatherReId")),
 						cursor.getString(cursor.getColumnIndex("Id")),
 						cursor.getString(cursor.getColumnIndex("Name")),
 						cursor.getInt(cursor.getColumnIndex("level")),
@@ -226,18 +271,19 @@ public class DbLocHelper extends SQLiteOpenHelper {
 	/**
 	 * 根据父级ID获取所有三级数据
 	 * */
-	public List<LevelThird>getThirdData(String fatherId){
+	public List<LevelThird>getThirdData(String fatherId,String reFatherId){
 		List<LevelThird>data = new ArrayList<LevelThird>();
 		SQLiteDatabase db=this.getReadableDatabase();
 		try {
 			//Cursor对象返回查询结果
 			Cursor cursor = db.query(LEVEL_THIRD_NAME,
 					new String[]{"Id","Name","level","info","posLat","posLong","imgPath","fatherId"}, 
-					"fatherId=?",new String[]{fatherId+""}, null, null, null, null); 
+					"fatherId=? and fatherReId=?",new String[]{fatherId+"",""+reFatherId}, null, null, null, null);
 			LevelThird info=null;
 			while (cursor.moveToNext()) { 
 				info= new LevelThird(
 						cursor.getString(cursor.getColumnIndex("fatherId")),
+						cursor.getString(cursor.getColumnIndex("fatherReId")),
 						cursor.getString(cursor.getColumnIndex("Id")),
 						cursor.getString(cursor.getColumnIndex("Name")),
 						cursor.getInt(cursor.getColumnIndex("level")),
@@ -272,6 +318,7 @@ public class DbLocHelper extends SQLiteOpenHelper {
 			while (cursor.moveToNext()) { 
 				info= new LevelThird(
 						cursor.getString(cursor.getColumnIndex("fatherId")),
+						cursor.getString(cursor.getColumnIndex("fatherReId")),
 						cursor.getString(cursor.getColumnIndex("Id")),
 						cursor.getString(cursor.getColumnIndex("Name")),
 						cursor.getInt(cursor.getColumnIndex("level")),
@@ -317,6 +364,7 @@ public class DbLocHelper extends SQLiteOpenHelper {
 		ContentValues values=new ContentValues();
 		values.put("Name",rootInfo.getName());
 		values.put("fatherId", rootInfo.getFatherId());
+		values.put("fatherReId", rootInfo.getFatherReId());
 		values.put("level", rootInfo.getLevel());
 		values.put("info", rootInfo.getInfo());
 		values.put("posLat", rootInfo.getPosLat());

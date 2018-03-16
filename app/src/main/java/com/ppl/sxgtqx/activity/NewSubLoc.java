@@ -151,7 +151,7 @@ public class NewSubLoc extends Activity implements OnClickListener{
 			
 			selfId = getIntent().getStringExtra("SELFID");
 			editData = BNDemoMainActivity.dbHelper.getThird(selfId);
-			savaInfo = new ConnType(1, 2, editData.getName(), 
+			savaInfo = new ConnType(1, 2, editData.getName(), editData.getFatherReId(),
 								editData.getFatherId(), 
 								selfId, 
 								editData.getPosLat(), 

@@ -220,8 +220,9 @@ public class SelectPos extends Activity implements OnClickListener{
 			Log.e(TAG, "根据二级id："+selfId+",获取到数据个数："+sqlData.size());
 			for(int i=0;i<sqlData.size();i++){
 				thirdPos.add(new ConnType(1, 2, 
-						sqlData.get(i).getName(), 
-						sqlData.get(i).getFatherId(), 
+						sqlData.get(i).getName(),
+						sqlData.get(i).getFatherId(),
+						sqlData.get(i).getFatherReId(),
 						sqlData.get(i).getID(), 
 						sqlData.get(i).getPosLat(), 
 						sqlData.get(i).getPosLong(), 1));

@@ -10,6 +10,7 @@ public class ConnType extends BmobObject{
 	int delSta;		//删除状态			0-已删除		1-未删除
 	String conn;
 	String fatherId;	//父级ID  属于谁
+	String fatherReId;	//第三级属于谁 2018年3月16新添加需求
 	String selfId;		//自身ID
 	boolean selectSta;		//该item是否被选中
 	LatLng pos;				//位置
@@ -26,7 +27,7 @@ public class ConnType extends BmobObject{
 	/**
 	 * 三级地址构造
 	 * */
-	public ConnType(int type, int level, String conn, String fatherId,
+	public ConnType(int type, int level, String conn, String fatherId,String fatherReId,
 			String selfId, double posLat, double posLong,int delSta) {
 		super();
 		this.type = type;
@@ -37,6 +38,7 @@ public class ConnType extends BmobObject{
 		this.posLat = posLat;
 		this.posLong = posLong;
 		this.delSta = delSta;
+		this.fatherReId = fatherReId;
 	}
 	
 	public ConnType(int type, int level, int delSta, String conn,
@@ -164,5 +166,12 @@ public class ConnType extends BmobObject{
 				+ netImgsPath + ", posLat=" + posLat + ", posLong=" + posLong
 				+ ", info=" + info + "]";
 	}
-	
+
+	public String getFatherReId() {
+		return fatherReId;
+	}
+
+	public void setFatherReId(String fatherReId) {
+		this.fatherReId = fatherReId;
+	}
 }

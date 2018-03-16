@@ -310,7 +310,7 @@ import com.ppl.sxgtqx.view.MyToast;
 				selectInfo = new ConnType(0, 0, "我的位置", "", 1);
 			}else{
 				LevelThird tmpData = BNDemoMainActivity.dbHelper.getThird(selectId);
-				selectInfo = new ConnType(1, 2, tmpData.getName(), 
+				selectInfo = new ConnType(1, 2, tmpData.getName(), tmpData.getFatherReId(),
 						tmpData.getFatherId(), tmpData.getID(),
 						tmpData.getPosLat(), tmpData.getPosLong(), 1);
 			}

@@ -418,7 +418,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 			for(int i=0;i<tmpData.size();i++){
 				Log.e(TAG, "根据二级目录Id: "+selfId+ " 获取到的三级目录信息的第： "+i+" 条信息是： "+tmpData.get(i).toString());
 				posData.add(new ConnType(1, 2,
-						tmpData.get(i).getName(), tmpData.get(i).getFatherId(),
+						tmpData.get(i).getName(), tmpData.get(i).getFatherId(),tmpData.get(i).getFatherReId(),
 						tmpData.get(i).getID(), tmpData.get(i).getPosLat(),
 						tmpData.get(i).getPosLong(), 1));
 			}
@@ -430,7 +430,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 			handler.sendMessage(msg);
 		}
 		tmpPos = 3;
-		posData.add(new ConnType(2, 2,  "添加", fatherIdSecond, "", 0, 0, 1));
+		posData.add(new ConnType(2, 2,  "添加", fatherIdSecond,"", "", 0, 0, 1));
 		adapterPos = null;
 		adapterPos = new MainSprinAdapter(posData, Setting.this,1,mListener);
 		lv_pos_manage.setAdapter(adapterPos);

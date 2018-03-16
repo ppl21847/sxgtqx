@@ -9,6 +9,7 @@ public class LevelThird extends BmobObject{
 	 */
 	private static final long serialVersionUID = 1L;
 	String fatherId;		//父级id
+	String fatherReId;		//新添加的3级
 	String ID;					//自身id
 	String name;			//名称
 	int user;		//判断是否被删除  true 已删除
@@ -20,12 +21,13 @@ public class LevelThird extends BmobObject{
 	String imgPath;		//三级地址下的图片地址  json 数组
 	String imgLocal;	//三级地址下的图片地址  json 数组  本地
 	int delSta;
-	
-	public LevelThird(String fatherId, String iD, String name, 
+
+	public LevelThird(String fatherId, String fatherReId,String iD, String name,
 			int level, String info, double posLat, double posLong,
 			String imgPath) {
 		super();
 		this.fatherId = fatherId;
+		this.fatherReId = fatherReId;
 		ID = iD;
 		this.name = name;
 		this.level = level;
@@ -119,5 +121,13 @@ public class LevelThird extends BmobObject{
 				+ name + ", user=" + user + ", level=" + level + ", info="
 				+ info + ", posLat=" + posLat + ", posLong=" + posLong
 				+ ", imgPath=" + imgPath + "]";
+	}
+
+	public String getFatherReId() {
+		return fatherReId;
+	}
+
+	public void setFatherReId(String fatherReId) {
+		this.fatherReId = fatherReId;
 	}
 }
