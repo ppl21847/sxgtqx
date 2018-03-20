@@ -27,7 +27,7 @@ public class DbLocHelper extends SQLiteOpenHelper {
 	private static final String TAG = "DbLocHelper";
 
 	public DbLocHelper(Context context, String name, CursorFactory factory,
-			int version) {
+					   int version) {
 		super(context, name, factory, version);
 	}
 
@@ -79,10 +79,11 @@ public class DbLocHelper extends SQLiteOpenHelper {
 				"info varchar(1000)," +
 				"posLat double not null," +
 				"posLong posLong not null," +
+				"fatherReId varchar(100) not null,"+
 				"imgPath varchar(1000)," +
 				"imgLocPath varchar(1000),"+
-				"fatherId varchar(100) not null),"+
-				"fatherReId varchar(100) not null)";
+				"fatherId varchar(100) not null)";
+
 		Log.e("DB", thirdSQL);
 		db.execSQL(thirdSQL);
 
@@ -90,9 +91,9 @@ public class DbLocHelper extends SQLiteOpenHelper {
 				"(dataId integer primary key autoincrement," +
 				"Id varchar(100) not null," +
 				"Name varchar(60) not null," +
-				"info varchar(1000)";
-		Log.e("DB", thirdSQL);
-		db.execSQL(thirdSQL);
+				"info varchar(1000))";
+		Log.e("DB", reThirdSQL);
+		db.execSQL(reThirdSQL);
 	}
 
 	@Override
@@ -134,6 +135,7 @@ public class DbLocHelper extends SQLiteOpenHelper {
 		values.put("posLong", data.getPosLong());
 		values.put("imgPath", data.getImgPath());//imgLocPath
 		values.put("imgLocPath", data.getImgLocal());
+		values.put("fatherReId", data.getFatherReId());
 		db.insert(LEVEL_THIRD_NAME, null, values);
 		db.close();
 	}
@@ -158,7 +160,7 @@ public class DbLocHelper extends SQLiteOpenHelper {
 	 * */
 	public List<LevelRoot>getRootData(){
 		List<LevelRoot>rootData = new ArrayList<LevelRoot>();
-		SQLiteDatabase db = getWritableDatabase(); 
+		SQLiteDatabase db = getWritableDatabase();
 		Cursor c = null;
 		try {
 			c=db.rawQuery("select * from "+LEVEL_FRIST_NAME,null);
@@ -173,7 +175,7 @@ public class DbLocHelper extends SQLiteOpenHelper {
 			// 处理能处理的异常，不能完整处理，重新封装异常抛给上层
 			Log.e(TAG, "getRootData get data Exception");
 		}
-		
+
 		if(c != null){
 			c.close();
 		}
@@ -190,7 +192,7 @@ public class DbLocHelper extends SQLiteOpenHelper {
 		try {
 			cursor = db.rawQuery("select * from "+LEVEL_SECOND_NAME,null);
 			LevelSecond info=null;
-			while (cursor.moveToNext()) { 
+			while (cursor.moveToNext()) {
 				info= new LevelSecond(
 						cursor.getString(cursor.getColumnIndex("fatherId")),
 						cursor.getString(cursor.getColumnIndex("Id")),
@@ -202,7 +204,7 @@ public class DbLocHelper extends SQLiteOpenHelper {
 		} catch (Exception e) {
 			Log.e(TAG, "getSecondData Exception");
 		}
-		
+
 		if(cursor != null){
 			cursor.close();
 		}
@@ -216,8 +218,8 @@ public class DbLocHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = getWritableDatabase();
 		try {
 			Cursor c = db.query(LEVEL_SECOND_NAME,
-					new String[]{"Id","Name","level","fatherId"}, 
-					"fatherId=?",new String[]{fatherId+""}, null, null, null, null); 
+					new String[]{"Id","Name","level","fatherId"},
+					"fatherId=?",new String[]{fatherId+""}, null, null, null, null);
 			while (c.moveToNext()){
 				data.add(new LevelSecond(
 						c.getString(c.getColumnIndex("fatherId")),
@@ -231,8 +233,34 @@ public class DbLocHelper extends SQLiteOpenHelper {
 		} catch (Exception e) {
 			Log.e(TAG, "getSecondData fatherId Exception");
 		}
-		
-		
+
+
+		return data;
+	}
+	/**
+	 * 获取所有新的第三级数据
+	 * */
+	public List<LevelReThird>getReThirdData(){
+		List<LevelReThird>data = new ArrayList<LevelReThird>();
+		SQLiteDatabase db=this.getReadableDatabase();
+		try {
+			//Cursor对象返回查询结果
+			Cursor cursor=db.rawQuery("select * from "+LEVEL_RE_THIRD_NAME,null);
+			LevelReThird info=null;
+			while (cursor.moveToNext()) {
+				info= new LevelReThird();
+				info.setName(cursor.getString(cursor.getColumnIndex("Name")));
+				info.setID(cursor.getString(cursor.getColumnIndex("Id")));
+				System.out.println("info="+info.toString());
+				data.add(info);
+			}
+			if(cursor != null){
+				cursor.close();
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			Log.e(TAG, "getThirdData Exception");
+		}
 		return data;
 	}
 	/**
@@ -245,7 +273,7 @@ public class DbLocHelper extends SQLiteOpenHelper {
 			//Cursor对象返回查询结果
 			Cursor cursor=db.rawQuery("select * from "+LEVEL_THIRD_NAME,null);
 			LevelThird info=null;
-			while (cursor.moveToNext()) { 
+			while (cursor.moveToNext()) {
 				info= new LevelThird(
 						cursor.getString(cursor.getColumnIndex("fatherId")),
 						cursor.getString(cursor.getColumnIndex("fatherReId")),
@@ -268,6 +296,26 @@ public class DbLocHelper extends SQLiteOpenHelper {
 		}
 		return data;
 	}
+
+	public boolean existReThirdData(){
+		boolean isExistData = false;
+		SQLiteDatabase db=this.getReadableDatabase();
+		try {
+			//Cursor对象返回查询结果
+			Cursor cursor=db.rawQuery("select * from "+LEVEL_RE_THIRD_NAME,null);
+			while (cursor.moveToNext()) {
+				isExistData = true;
+				break;
+			}
+			if(cursor != null){
+				cursor.close();
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			Log.e(TAG, "getThirdData Exception");
+		}
+		return isExistData;
+	}
 	/**
 	 * 根据父级ID获取所有三级数据
 	 * */
@@ -275,12 +323,14 @@ public class DbLocHelper extends SQLiteOpenHelper {
 		List<LevelThird>data = new ArrayList<LevelThird>();
 		SQLiteDatabase db=this.getReadableDatabase();
 		try {
+			String[] columns={"Id","Name","level","info","posLat","posLong","imgPath","fatherId","fatherReId"};//你要的数据
+			String selections="fatherId=? and fatherReId=?";	//条件字段
+			String[] selectionArgs={fatherId,reFatherId};//具体的条件,注意要对应条件字段
 			//Cursor对象返回查询结果
 			Cursor cursor = db.query(LEVEL_THIRD_NAME,
-					new String[]{"Id","Name","level","info","posLat","posLong","imgPath","fatherId"}, 
-					"fatherId=? and fatherReId=?",new String[]{fatherId+"",""+reFatherId}, null, null, null, null);
+					columns,selections,selectionArgs, null, null, null, null);
 			LevelThird info=null;
-			while (cursor.moveToNext()) { 
+			while (cursor.moveToNext()) {
 				info= new LevelThird(
 						cursor.getString(cursor.getColumnIndex("fatherId")),
 						cursor.getString(cursor.getColumnIndex("fatherReId")),
@@ -299,7 +349,7 @@ public class DbLocHelper extends SQLiteOpenHelper {
 			// TODO: handle exception
 			Log.e(TAG, "getThirdData fatherId: "+fatherId+" Exception");
 		}
-		
+
 		return data;
 	}
 	/**
@@ -308,14 +358,14 @@ public class DbLocHelper extends SQLiteOpenHelper {
 	public LevelThird getThird(String selfId){
 		LevelThird info = null;
 		SQLiteDatabase db=this.getReadableDatabase();
-		
+
 		try {
 			//Cursor对象返回查询结果
 			Cursor cursor = db.query(LEVEL_THIRD_NAME,
-					new String[]{"Id","Name","level","info","posLat","posLong","imgPath","fatherId"}, 
-					"Id=?",new String[]{selfId+""}, null, null, null, null); 
+					new String[]{"Id","Name","level","info","posLat","posLong","imgPath","fatherId"},
+					"Id=?",new String[]{selfId+""}, null, null, null, null);
 			Log.e("DB", "查找结果有： "+cursor.getCount()+" 条");
-			while (cursor.moveToNext()) { 
+			while (cursor.moveToNext()) {
 				info= new LevelThird(
 						cursor.getString(cursor.getColumnIndex("fatherId")),
 						cursor.getString(cursor.getColumnIndex("fatherReId")),
@@ -333,7 +383,7 @@ public class DbLocHelper extends SQLiteOpenHelper {
 			// TODO: handle exception
 			Log.e(TAG, "getThird selfId: "+selfId+" Exception");
 		}
-		
+
 		return info;
 	}
 
@@ -373,6 +423,17 @@ public class DbLocHelper extends SQLiteOpenHelper {
 		return db.update(LEVEL_THIRD_NAME,values,"Id = ?",new String[]{rootInfo.getID()});
 		//db.update("Book", values, "name = ?", new String[] { "The DaVinci Code" });
 	}
+
+	/**
+	 * 更新新的三级目录
+	 * */
+	public int updataReThirdInfo(LevelReThird reThirdInfo){
+		SQLiteDatabase db=this.getWritableDatabase();
+		ContentValues values=new ContentValues();
+		values.put("Name",reThirdInfo.getName());
+		values.put("info", reThirdInfo.getInfo());
+		return db.update(LEVEL_RE_THIRD_NAME,values,"Id = ?",new String[]{reThirdInfo.getID()});
+	}
 	/**
 	 * 删除根级目录
 	 * */
@@ -399,12 +460,12 @@ public class DbLocHelper extends SQLiteOpenHelper {
 	 * */
 	public void dataInfo(){
 		SQLiteDatabase db=this.getWritableDatabase();
-		String sql ="DROP TABLE "+LEVEL_FRIST_NAME; 
-		String sql2 ="DROP TABLE "+LEVEL_SECOND_NAME; 
+		String sql ="DROP TABLE "+LEVEL_FRIST_NAME;
+		String sql2 ="DROP TABLE "+LEVEL_SECOND_NAME;
 		String sql3 ="DROP TABLE "+LEVEL_THIRD_NAME;
-		db.execSQL(sql); 
-		db.execSQL(sql2); 
-		db.execSQL(sql3); 
+		db.execSQL(sql);
+		db.execSQL(sql2);
+		db.execSQL(sql3);
 	}
 	/**
 	 * 清空表数据

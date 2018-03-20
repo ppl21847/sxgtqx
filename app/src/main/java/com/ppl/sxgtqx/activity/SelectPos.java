@@ -31,7 +31,7 @@ public class SelectPos extends Activity implements OnClickListener{
 	private static final String TAG = "SelectPos";
 	protected static final int NOTIFY_THIRD = 3;
 	protected static final int NOTIFY_SECOND = 4;
-	ListView lv_dlg_first,lv_dlg_second,lv_dlg_third;
+	ListView lv_dlg_first,lv_dlg_second,lv_dlg_third,lv_dlg_reThird;
 	List<ConnType> firstPos,secondPos,thirdPos;
 	MainSprinAdapter firstAdp,seceAdp,thirdAdp;
 	TextView tv_select_self;
@@ -213,7 +213,7 @@ public class SelectPos extends Activity implements OnClickListener{
 	protected void getThirdData(String selfId) {
 		thirdPos = null;
 		thirdPos = new ArrayList<ConnType>();
-		List<LevelThird>sqlData = BNDemoMainActivity.dbHelper.getThirdData(selfId);
+		List<LevelThird>sqlData = BNDemoMainActivity.dbHelper.getThirdData("",selfId);
 		if(sqlData.size() == 0){
 			Log.e(TAG,  "根据二级id："+selfId+",获取到数据个数：0");
 		}else{

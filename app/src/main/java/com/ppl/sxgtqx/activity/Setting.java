@@ -46,6 +46,7 @@ import com.ppl.sxgtqx.application.LocationApplication;
 import com.ppl.sxgtqx.com.baidu.navi.sdkdemo.BNDemoMainActivity;
 import com.ppl.sxgtqx.utils.ConnType;
 import com.ppl.sxgtqx.utils.InitData;
+import com.ppl.sxgtqx.utils.LevelReThird;
 import com.ppl.sxgtqx.utils.LevelRoot;
 import com.ppl.sxgtqx.utils.LevelSecond;
 import com.ppl.sxgtqx.utils.LevelThird;
@@ -74,7 +75,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 	TextView tv_level_frist,tv_level_second;
 	ListViewForScrollView lv_pos_manage;
 	MainSprinAdapter adapterPos;
-	List<ConnType>fristData,secondData;
+	List<ConnType>fristData,secondData,reThirdData;
 	List<ConnType>posData;
 	String fatherIdFirst,fatherIdSecond;
 
@@ -95,6 +96,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 	TextView tv_login_sta,tv_login_disc;
 	Button bt_login;
 	ScrollView sv;
+	private String secondFatherId;		//二级地址的点击ID
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -403,15 +405,56 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 			getSecondData(clickData.getSelfId());
 		}else if(clickData.getLevel() == 1){
 			Log.e(TAG, "根据二级目录Id "+clickData.getSelfId()+"请求 二级目录");
-			getThirdData(clickData.getSelfId());
+			secondFatherId = clickData.getSelfId();
+			getReThirdData(clickData.getSelfId());
 		}else if(clickData.getLevel() == 2){
 			Log.e(TAG, "编辑三级地址： "+clickData.getConn());
 			goToThirdEdit(clickData.getSelfId());
+		}else if(clickData.getLevel() == 3){
+			Log.e(TAG, "根据新的第二级地址级目录Id "+clickData.getSelfId()+"请求 二级目录");
+			getThirdData(secondFatherId,clickData.getSelfId());
 		}
 	}
-	private void getThirdData(String selfId) {
+
+	private void getReThirdData(String selfId) {
+		Log.e(TAG, "进入了请求xin二级目录。一级Id： "+selfId);
+		List<LevelReThird>tmpData = BNDemoMainActivity.dbHelper.getReThirdData();
+
+		Log.e(TAG, "获得的xin二级目录大小是： "+tmpData.size());
+		posData = null;
+		posData = new ArrayList<ConnType>();
+		if(tmpData.size() > 0){
+			for(int i=0;i<tmpData.size();i++){
+				Log.e(TAG, "根据根目录Id: "+selfId+ " 获取到的二级目录信息的第： "+i+" 条信息是： "+tmpData.get(i).toString());
+				posData.add(new ConnType(1, 3,
+						tmpData.get(i).getName(),
+						tmpData.get(i).getID(), 0));
+			}
+		}else{
+			Log.e(TAG, "该目录下没有地点");
+			Message msg = new Message();
+			msg.what = SHOW_TOAST;
+			msg.obj = "该目录下没有地点";
+			handler.sendMessage(msg);
+		}
+		posData.add(new ConnType(2, 3, "添加", fatherIdFirst, "", 1));
+		tmpPos = 2;
+
+		reThirdData = null;
+		reThirdData = new ArrayList<ConnType>();
+		for(int i=0;i<posData.size();i++){
+			reThirdData.add(posData.get(i));
+		}
+
+		adapterPos = null;
+		adapterPos = new MainSprinAdapter(posData, Setting.this,1,mListener);
+		lv_pos_manage.setAdapter(adapterPos);
+		handler.sendEmptyMessage(UPDATA_ADAPTER);
+	}
+
+	private void getThirdData(String secondFatherId, String selfId) {
 		Log.e(TAG, "根据二级Id："+selfId+",请求三级数据");
-		List<LevelThird>tmpData = BNDemoMainActivity.dbHelper.getThirdData(selfId);
+		List<LevelThird>tmpData = BNDemoMainActivity.dbHelper.getThirdData(secondFatherId,selfId);
 		posData = null;
 		posData = new ArrayList<ConnType>();
 		if(tmpData.size() > 0){
@@ -550,9 +593,12 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 					if(level == 0){
 						Log.e(TAG, "根级目录: "+conn);
 						addOrEditFirst(conn,clickData,addSta,arg2);
-					}else{
+					}else if(level == 1){
 						Log.e(TAG, "二级目录，操作: "+conn);
 						addOrEditSecond(conn,clickData,addSta,arg2);
+					}else if(level == 3){
+						Log.e(TAG, "新的三级目录，操作: "+conn);
+						addOrEditReThird(conn,clickData,addSta,arg2);
 					}
 					alertDialog.dismiss();
 				}
@@ -595,6 +641,92 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 				tv_title.setText("在"+fatherConn+"下编辑");//设置标题内容
 			}
 		}
+	}
+
+	/**
+	 * 编辑或新建新的第三级数据
+	 * */
+	private void addOrEditReThird(String conn, ConnType clickData, boolean addSta, int arg2) {
+		clickData.setConn(conn);
+		LevelReThird tmp = new LevelReThird();
+		tmp.setID(clickData.getSelfId());
+		tmp.setName(conn);
+		tmp.setLevel(3);
+		tmp.setDelSta(1);
+		if(addSta){
+			Log.e(TAG, "添加二级目："+conn);
+			saveNewReThird(tmp,conn);
+		}else{
+			Log.e(TAG, "编辑二级目："+conn);
+			updataReThird(clickData,arg2);
+		}
+	}
+
+	/**
+	 * 更新新的第三级内容
+	 * */
+	private void updataReThird(final ConnType clickData, final int arg2) {
+		Log.e(TAG, "更新新三级目录信息："+clickData.toString());
+		LevelReThird updata = new LevelReThird();
+		updata.setValue("name", clickData.getConn());
+		updata.setValue("delSta", 1);
+		updata.setValue("level", 3);
+		String objId = clickData.getSelfId();
+		Log.e(TAG, "修改的Id： "+objId);
+
+		updata.update(objId, new UpdateListener() {
+			@Override
+			public void done(BmobException e) {
+				Message msg = new Message();
+				if(e == null){
+					posData.get(arg2).setConn(clickData.getConn());
+					LevelReThird updataReThird = new LevelReThird();
+					updataReThird.setLevel(3);
+					updataReThird.setID(clickData.getSelfId());
+					updataReThird.setName(clickData.getConn());
+					updataReThird.setInfo(clickData.getInfo());
+
+					BNDemoMainActivity.dbHelper.updataReThirdInfo(updataReThird);
+					handler.sendEmptyMessage(UPDATA_ADAPTER);
+					msg.obj = "更新三级目录："+clickData.getConn()+" 成功";
+					Log.e(TAG, "更新三级目录--------->>>>>>>>>>>>："+clickData.getConn()+" 成功");
+				}else{
+					Log.e(TAG, "更新三级目录：>>>>-------"+clickData.getConn()+" 失败!"+e);
+					msg.obj = "更新三级目录："+clickData.getConn()+" 失败!";
+				}
+				msg.what = SHOW_TOAST;
+				handler.sendMessage(msg);
+			}
+		});
+	}
+
+	/**
+	 * 添加新的三级内容
+	 * */
+	private void saveNewReThird(final LevelReThird tmp, String conn) {
+		LevelReThird newSaveData = new LevelReThird();
+		newSaveData.setDelSta(1);
+		newSaveData.setLevel(3);
+		newSaveData.setName(tmp.getName());
+		newSaveData.save(new SaveListener<String>() {
+			@Override
+			public void done(String arg0, BmobException e) {
+				Message msg = new Message();
+				if(e==null){
+					tmp.setID(arg0);
+					BNDemoMainActivity.dbHelper.addReThird(tmp);
+					posData.add(0,new ConnType(1, 3, tmp.getName(), arg0, 1));
+					msg.obj = "添加三级目录: "+tmp.getName()+" 成功！";
+					handler.sendEmptyMessage(UPDATA_ADAPTER);
+					Log.e(TAG, "添加三级目录成功！："+tmp.getName());
+				}else{
+					msg.obj = "创建数据失败：" + e.getMessage();
+					Log.e(TAG, "添加三级目录失败！："+"创建数据失败：" + e.getMessage());
+				}
+				msg.what = SHOW_TOAST;
+				handler.sendMessage(msg);
+			}
+		});
 	}
 
 	private void addOrEditSecond(String conn, ConnType clickData,

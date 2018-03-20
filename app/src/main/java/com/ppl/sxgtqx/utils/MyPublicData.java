@@ -27,33 +27,6 @@ public class MyPublicData {
 	public static final String SELF_ID = "showSelfId";
 
 	public static void getLocData(DbLocHelper dbHelper){
-//		SharedPreferences sharedPreferences = this.getSharedPreferences("com.ppl.sxgtqx", MODE_PRIVATE);
-//		boolean isFirstRun = sharedPreferences.getBoolean("isFirstRun", true);
-//		Editor editor = sharedPreferences.edit();
-//		if (isFirstRun)
-//		{
-//			Log.d("debug", "第一次运行");
-//			editor.putBoolean("isFirstRun", false);
-//			editor.commit();
-//			dbHelper.addFirst(new LevelRoot("aaaa49a5f6", "太原供电段", 0,1));
-//			dbHelper.addSecond(new LevelSecond("aaaa49a5f6", "ZjJEGGGI", "晋中高铁供电车间", 1,1));
-//			dbHelper.addSecond(new LevelSecond("aaaa49a5f6", "46cce70cb1", "忻州西高铁供电车间", 1,1));
-//			dbHelper.addThird(new LevelThird("ZjJEGGGI", "7d8b932986", "晋中供电车间", 2, "晋中供电车间设有晋中网电工区、晋中变电工区2个班组，祁县东、太谷西站2个应急点，晋中、祁县东2座10KV无人值守配电室，晋中、祁县东2座牵引变电所，郝村、东观、新胜3座无人值守AT所，太原南、南郭2座无人值守分区所，和晋中、太谷西、祁县东3座给水所，主要担负着大西高铁太原南大西场（含）-平遥古城站(不含)间4个站场、4个区间，共计91.6正线公里的高铁牵引供电、电力、给水设备的运行、维护和应急处理任务，共管理接触网设备260条公里。"
-//					, 37.695969, 112.657084, ""));
-//			dbHelper.addThird(new LevelThird("ZjJEGGGI", "5aea39bafa", "祁县东变电所", 2, "车间设有晋中网电工区、晋中变电工区2个班组，祁县东、太谷西站。"
-//					, 37.319237, 112.354332, ""));
-//			dbHelper.addThird(new LevelThird("ZjJEGGGI", "xFup777Z", "南郭分区所", 2, ""
-//					, 37.4848, 112.558225, ""));
-//			dbHelper.addThird(new LevelThird("ZjJEGGGI", "7XVy666F", "郝村AT所", 2, ""
-//					, 37.591771, 112.593876, ""));
-//			dbHelper.addThird(new LevelThird("ZjJEGGGI", "key4222L", "东观AT所", 2, ""
-//					, 37.409576, 112.455842, ""));
-//			dbHelper.addThird(new LevelThird("ZjJEGGGI", "NbDZ333G", "新胜AT所", 2, ""
-//					, 27.173662, 118.390551, ""));
-//		} else{
-//			Log.d("debug", "不是第一次运行");
-//		}
-
 		MyPublicData.rootData = dbHelper.getRootData();
 		Log.e(TAG, "MyPublicData.rootData.size():"+(MyPublicData.rootData == null ? 0 : MyPublicData.rootData.size()));
 		MyPublicData.levelFirst.add(new ConnType(0, 0, "我的位置", "0",1));
@@ -91,7 +64,7 @@ public class MyPublicData {
 					Log.e(TAG, "get LevelRoot data.size():"+data.size());
 					List<LevelRoot>tmpRoot = dbHelper.getRootData();
 					if(tmpRoot != null){
-						dbHelper.clearThirdData();
+						dbHelper.clearFirstData();
 					}
 					for(int i=0;i<data.size();i++){
 						Log.e(TAG, "get LevelRoot data("+i+"):"+data.get(i).toString());
@@ -157,12 +130,12 @@ public class MyPublicData {
 					//更新数据库没用信息    服务器已删除  本地还有
 					List<LevelThird>tmpDataList = dbHelper.getThirdData();
 					if(tmpDataList != null){
-						dbHelper.clearFirstData();
+						dbHelper.clearThirdData();
 					}
 					Log.e(TAG, "数据库没有三级地址数据");
 					Log.e(TAG, "向本地数据库添加"+data.size()+"条，三级数据");
 					for(int i=0;i<data.size();i++){
-						LevelThird tmpData = new LevelThird(data.get(i).getFatherId(),data.get(i).getFatherId(),
+						LevelThird tmpData = new LevelThird(data.get(i).getFatherId(),data.get(i).getFatherReId(),
 								data.get(i).getObjectId(), data.get(i).getConn(), 2,
 								data.get(i).getInfo(), data.get(i).getPosLat(),
 								data.get(i).getPosLong(), data.get(i).getNetImgsPath());
@@ -175,4 +148,38 @@ public class MyPublicData {
 			}
 		});
 	}
+
+	/**
+	 * 同步新添加的第三级地址
+	 * */
+    public static void syncReThird(final DbLocHelper dbHelper) {
+		Log.e(TAG, "请求服务器xinde三级地址----------44444444444444");
+		BmobQuery<LevelReThird>query = new BmobQuery<LevelReThird>();
+		query.addWhereEqualTo("delSta", 1);
+		query.findObjects(new FindListener<LevelReThird>() {
+			@Override
+			public void done(List<LevelReThird> data, BmobException e) {
+				if(e == null){
+					Log.e(TAG, "从服务器获取xinde三级目录信息数量："+data.size());
+					//更新数据库没用信息    服务器已删除  本地还有
+					if( dbHelper.existReThirdData()){
+						dbHelper.clearReThirdData();
+					}
+
+					Log.e(TAG, "数据库没有xinde三级地址数据");
+					Log.e(TAG, "向本地数据库添加"+data.size()+"条，xinde三级数据");
+					for(int i=0;i<data.size();i++){
+						LevelReThird tmpData = new LevelReThird();
+						tmpData.setLevel(3);
+						tmpData.setID(data.get(i).getObjectId());
+						tmpData.setName(data.get(i).getName());
+						Log.e(TAG, "向数据库添加的新数据是： "+data.get(i).toString());
+						dbHelper.addReThird(tmpData);
+					}
+				}else{
+					Log.e(TAG, "2222222222222222222222222获取三级地址失败");
+				}
+			}
+		});
+    }
 }

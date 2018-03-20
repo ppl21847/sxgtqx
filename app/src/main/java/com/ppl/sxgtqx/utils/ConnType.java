@@ -157,14 +157,25 @@ public class ConnType extends BmobObject{
 	public void setConn(String conn) {
 		this.conn = conn;
 	}
+
 	@Override
 	public String toString() {
-		return "ConnType [type=" + type + ", Level=" + Level + ", delSta="
-				+ delSta + ", conn=" + conn + ", fatherId=" + fatherId
-				+ ", selfId=" + selfId + ", selectSta=" + selectSta + ", pos="
-				+ pos + ", locImgsPath=" + locImgsPath + ", netImgsPath="
-				+ netImgsPath + ", posLat=" + posLat + ", posLong=" + posLong
-				+ ", info=" + info + "]";
+		return "ConnType{" +
+				"type=" + type +
+				", Level=" + Level +
+				", delSta=" + delSta +
+				", conn='" + conn + '\'' +
+				", fatherId='" + fatherId + '\'' +
+				", fatherReId='" + fatherReId + '\'' +
+				", selfId='" + selfId + '\'' +
+				", selectSta=" + selectSta +
+				", pos=" + pos +
+				", locImgsPath='" + locImgsPath + '\'' +
+				", netImgsPath='" + netImgsPath + '\'' +
+				", posLat=" + posLat +
+				", posLong=" + posLong +
+				", info='" + info + '\'' +
+				'}';
 	}
 
 	public String getFatherReId() {

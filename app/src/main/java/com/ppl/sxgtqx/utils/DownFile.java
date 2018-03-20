@@ -20,7 +20,7 @@ public class DownFile {
     public static final int FILE_DOWN_COMPLETED = 35;
     public static final int FILE_DOWN_ERROR = 34;
 
-    private void downLoadFile(String fileUrl, final Handler mHandler){
+    public void downLoadFile(String fileUrl, final Handler mHandler){
         //得到当前外部存储设备的目录
         String SDCardRoot= Environment.getExternalStorageDirectory()+ File.separator;
         //File.separator为文件分隔符”/“,方便之后在目录下创建文件

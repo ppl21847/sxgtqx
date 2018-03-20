@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -15,7 +14,6 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings;
@@ -32,7 +30,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -55,9 +52,6 @@ import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
 import com.baidu.navisdk.adapter.BNOuterLogUtil;
-import com.liulishuo.filedownloader.BaseDownloadTask;
-import com.liulishuo.filedownloader.FileDownloadListener;
-import com.liulishuo.filedownloader.FileDownloader;
 import com.ppl.sxgtqx.MainPermissionActivity;
 import com.ppl.sxgtqx.R;
 import com.ppl.sxgtqx.activity.ElecSubShow;
@@ -71,6 +65,7 @@ import com.ppl.sxgtqx.service.Utils;
 import com.ppl.sxgtqx.utils.ConnType;
 import com.ppl.sxgtqx.utils.DownFile;
 import com.ppl.sxgtqx.utils.ElecSubInfo;
+import com.ppl.sxgtqx.utils.LevelReThird;
 import com.ppl.sxgtqx.utils.LevelRoot;
 import com.ppl.sxgtqx.utils.LevelSecond;
 import com.ppl.sxgtqx.utils.LevelThird;
@@ -89,10 +84,9 @@ import java.util.List;
 
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.exception.BmobException;
-import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.QueryListener;
 
-@SuppressLint("NewApi") public class BNDemoMainActivity extends Activity implements OnClickListener{
+@SuppressLint("NewApi") public class BNDemoMainActivity extends Activity implements OnClickListener,OnItemClickListener{
 	public static String TAGMAIN = "TagMainAty";
 	public static List<Activity> activityList = new LinkedList<Activity>();
 
@@ -115,6 +109,7 @@ import cn.bmob.v3.listener.QueryListener;
 	protected static final int GET_ROOT_DATA = 15;
 	protected static final int NOTIFY_SECOND_ADP = 17;
 	private static final int NOTIFY_THRID_ADP = 18;
+	private static final int NOTIFY_RE_THRID_ADP = 19;
 	private ImageButton mBtUpdate;
 	MapView mMapView = null;
 	private BaiduMap mBaiduMap;
@@ -137,8 +132,12 @@ import cn.bmob.v3.listener.QueryListener;
 	boolean showSubSta = false;			//是否显示可选地点
 	LinearLayout ll_selece_dis;
 	ListView lv_level_first,lv_level_second,lv_level_third,lv_level_third_re;
-	int level1=0,level2=0,level3=0;
+	int level1=0,level2=0,levelRe3 = 0,level3=0;
 	String selectConn = "";
+	String selectRoot = "";
+	String selectSecond = "";
+	String selectReThird = "";
+	String selectThird = "";
 	ImageView iv_down;
 	ImageButton ib_set;
 
@@ -168,6 +167,7 @@ import cn.bmob.v3.listener.QueryListener;
 
 	private static final int PERMISSON_REQUESTCODE = 0;
 	private UpdataAlertDialog mDialog;
+	private String selectSecondId;		//点击的二级地址内容ID
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -182,10 +182,10 @@ import cn.bmob.v3.listener.QueryListener;
 		initDataSQL();
 		initView();
 		initMap();
+		initSQL();//与服务器数据同步
 		MyPublicData.getLocData(dbHelper);
 		initLocListView();
 		checkUpdate();
-		initSQL();//与服务器数据同步
 	}
 
 	/**
@@ -287,7 +287,8 @@ import cn.bmob.v3.listener.QueryListener;
 	 * 下载最新的安装包
 	 * */
 	private void downNewFile(String apkUrl) {
-
+		DownFile downFile = new DownFile();
+		downFile.downLoadFile(apkUrl,locHander);
 	}
 
 	/**
@@ -353,7 +354,7 @@ import cn.bmob.v3.listener.QueryListener;
 	 */
 	@Override
 	public void onRequestPermissionsResult(int requestCode,
-			String[] permissions, int[] paramArrayOfInt) {
+										   String[] permissions, int[] paramArrayOfInt) {
 		if (requestCode == PERMISSON_REQUESTCODE) {
 			if (!verifyPermissions(paramArrayOfInt)) {
 				showMissingPermissionDialog();
@@ -412,6 +413,15 @@ import cn.bmob.v3.listener.QueryListener;
 			@Override
 			public void run() {
 				//同步三级地址信息
+				Log.e(TAGMAIN, "--44444444444444开始获取si级地址信息");
+				MyPublicData.syncReThird(dbHelper);
+			}
+		}).start();
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				//同步三级地址信息
 				Log.e(TAGMAIN, "--3333333333333333开始获取san级地址信息");
 				MyPublicData.syncThird(dbHelper);
 			}
@@ -442,79 +452,24 @@ import cn.bmob.v3.listener.QueryListener;
 		firstAdp = new MainSprinAdapter(MyPublicData.levelFirst, getApplicationContext());
 		seceAdp = new MainSprinAdapter(MyPublicData.levelSond, getApplicationContext());
 		thirdAdp = new MainSprinAdapter(MyPublicData.levelThird, getApplicationContext());
-		reThirdAdp = new MainSprinAdapter(MyPublicData.levelThird, getApplicationContext());
+		reThirdAdp = new MainSprinAdapter(MyPublicData.levelReThird, getApplicationContext());
 
 		lv_level_first.setAdapter(firstAdp);
 		lv_level_second.setAdapter(seceAdp);
 		lv_level_third.setAdapter(thirdAdp);
 		lv_level_third_re.setAdapter(reThirdAdp);
 
-		lv_level_first.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-				level1 = position;
-				System.out.println("=============>>>>>>>>>>>点击一级listView");
-				if(position == 0){
-					System.out.println("=============>>>>>>>>>>>点击我的位置");
-					showSlefPos();
-				}else{
-					NoSearchSta = false;
-					System.out.println("=============>>>>>>>>>>>点击"+position);
-					//					View v=parent.getChildAt(position);
-					//					v.setBackgroundColor(Color.GRAY);
-					selectConn = MyPublicData.levelFirst.get(position).getConn();
-					tv_selece_sub.setTextColor(Color.GREEN);
-					tv_selece_sub.setText(selectConn);
+		lv_level_first.setOnItemClickListener(this);
+		lv_level_second.setOnItemClickListener(this);
 
-					ll_selece_dis.setVisibility(View.VISIBLE);
-					lv_level_third.setVisibility(View.GONE);
-					lv_level_second.setVisibility(View.VISIBLE);
-
-					//请求二级目录
-					Log.e(TAGMAIN, "请求二级目录，一级id："+MyPublicData.levelFirst.get(level1).getSelfId());
-					getSecondDataSQL(MyPublicData.levelFirst.get(level1).getSelfId());
-				}
-			}
-		});
-		lv_level_second.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-				level2 = position;
-				selectConn +="  "+ MyPublicData.levelSond.get(position).getConn();
-				tv_selece_sub.setText(selectConn);
-				tv_selece_sub.setTextColor(Color.GREEN);
-				//					View v=parent.getChildAt(position);
-				//					v.setBackgroundColor(Color.GRAY);
-				lv_level_third.setVisibility(View.VISIBLE);
-				lv_level_first.setVisibility(View.GONE);
-
-				//请求二级目录
-				Log.e(TAGMAIN, "请求三级目录，二级id："+MyPublicData.levelSond.get(level2).getSelfId());
-				getThirdDate(MyPublicData.levelSond.get(level2).getSelfId());
-				NoSearchSta = false;
-			}
-		});
+		//点击新第三级地址第四级列表内容
+		lv_level_third_re.setOnItemClickListener(this);
 
 		//点击三级地址显示相应信息
-		lv_level_third.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,int position, long id) {
-				mBaiduMap.clear();
-				lv_level_third.setVisibility(View.GONE);
-				lv_level_second.setVisibility(View.GONE);
-				ll_selece_dis.setVisibility(View.GONE);
-				showSubSta = false;
-				level3 = position;
+		lv_level_third.setOnItemClickListener(this);
 
-				selectConn +="  "+ MyPublicData.levelThird.get(position).getConn();
-				tv_selece_sub.setText(selectConn);
-				tv_selece_sub.setTextColor(Color.GREEN);
-				//定位到搜索位置
-				//底层显示
-				showSubInfo(level3);
-			}
-		});
 	}
+
 	/**
 	 * 显示搜索信息
 	 * */
@@ -556,11 +511,31 @@ import cn.bmob.v3.listener.QueryListener;
 				.zIndex(9).draggable(true);
 		mBaiduMap.addOverlay(ooA);
 	}
+
+	/***
+	 * 获取新的第三级数据显示
+	 * */
+	private void getReThirdDate() {
+		List<LevelReThird>tempData = dbHelper.getReThirdData();
+		Log.e(TAGMAIN, "获取新的三级目录内容数据大小:"+tempData.size());
+		MyPublicData.levelReThird.clear();
+
+		for(int i=0;i<tempData.size();i++){
+			Log.e(TAGMAIN, tempData.get(i).toString());
+			//(int type, int level, String conn, String selfId,int delSta)
+			MyPublicData.levelReThird.add(new ConnType(1, 3,
+					tempData.get(i).getName(),
+					tempData.get(i).getID(),0));
+		}
+		Log.e(TAGMAIN, "新的三级目录下个数:"+MyPublicData.levelReThird.size());
+		locHander.sendEmptyMessage(NOTIFY_RE_THRID_ADP);
+	}
 	/**
 	 * 从数据库获取三级目录数据
 	 * */
-	protected void getThirdDate(String selfId) {
-		List<LevelThird>tmpData = dbHelper.getThirdData(selfId);
+	protected void getThirdDate(String fatherId, String reThird) {
+		Log.d(TAGMAIN,"fatherId: "+fatherId+", reThird: "+reThird);
+		List<LevelThird>tmpData = dbHelper.getThirdData(fatherId,reThird);
 		Log.e(TAGMAIN, "获取三级目录内容数据大小:"+tmpData.size());
 		MyPublicData.levelThird.clear();
 
@@ -780,14 +755,14 @@ import cn.bmob.v3.listener.QueryListener;
 				showToastMsg("路线规划失败，请检查网络设置");
 			}else if(SECOND_ADD_SUCCESS == msg.what){
 				showToastMsg("添加数据成功");
-				System.out.println("添加二级数据成功");
+				Log.d(TAGMAIN,"添加二级数据成功");
 				seceAdp.notifyDataSetChanged();
 			}else if(ADD_FALUE == msg.what){
 				showToastMsg((String)msg.obj);
 			}else if(FRIST_ADD_SUCCESS ==  msg.what){
 				//添加一级内容成功
 				showToastMsg("添加数据成功");
-				System.out.println("添加一级数据成功");
+				Log.d(TAGMAIN,"添加一级数据成功");
 				firstAdp.notifyDataSetChanged();
 			}else if(GET_ROOT_DATA == msg.what){
 				//一级目录有更新
@@ -825,6 +800,8 @@ import cn.bmob.v3.listener.QueryListener;
 			}else if(msg.what == DownFile.FILE_DOWN_ERROR){
 				mDialog.dismiss();
 				myToast.show("下载安装包失败");
+			}else if(NOTIFY_RE_THRID_ADP == msg.what){
+				reThirdAdp.notifyDataSetChanged();
 			}
 		}
 
@@ -1042,5 +1019,125 @@ import cn.bmob.v3.listener.QueryListener;
 	public void showToastMsg(final String msg) {
 		Log.e(TAGMAIN, "myToast show info------------>>>>>>>>>"+msg);
 		myToast.show(msg);
+	}
+
+	/**
+	 * item 点击
+	 * */
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		switch (parent.getId()){
+			case R.id.lv_level_first:
+				Log.d(TAGMAIN,"点击了跟级数据");
+				clickFirst(position);
+				break;
+			case R.id.lv_level_second:
+				Log.d(TAGMAIN,"点击了2级数据");
+				clickSecond(position);
+				break;
+			case R.id.lv_level_third_re:
+				Log.d(TAGMAIN,"点击了3级数据");
+				clickReThird(position);
+				break;
+			case R.id.lv_level_third:
+				Log.d(TAGMAIN,"点击了4级数据");
+				showSelectDis(position);
+				break;
+		}
+	}
+
+	private void showSelectDis(int position) {
+		Log.d(TAGMAIN,"=============333333333333333>>>>>>>>>>>点击"+position);
+		mBaiduMap.clear();
+		lv_level_third.setVisibility(View.GONE);
+		lv_level_second.setVisibility(View.GONE);
+		ll_selece_dis.setVisibility(View.GONE);
+		showSubSta = false;
+		level3 = position;
+
+		selectThird = MyPublicData.levelThird.get(position).getConn();
+		selectConn =selectRoot +"  "+selectSecond+" "+ selectReThird + " "+selectThird;
+		tv_selece_sub.setText(selectConn);
+		tv_selece_sub.setTextColor(Color.GREEN);
+		//定位到搜索位置
+		//底层显示
+		showSubInfo(level3);
+		NoSearchSta = false;
+	}
+
+	private void clickReThird(int position) {
+		Log.d(TAGMAIN,"=============r3r3r3r3r>>>>>>>>>>>点击"+position);
+		levelRe3 = position;
+		tv_selece_sub.setTextColor(Color.GREEN);
+		lv_level_third_re.setVisibility(View.VISIBLE);
+		lv_level_third.setVisibility(View.VISIBLE);
+		lv_level_first.setVisibility(View.GONE);
+		lv_level_second.setVisibility(View.GONE);
+
+		selectReThird = MyPublicData.levelReThird.get(position).getConn();
+		selectConn =selectRoot +"  "+selectSecond+" "+ selectReThird;
+		tv_selece_sub.setText(selectConn);
+
+		//请求二级目录
+		Log.e(TAGMAIN, "请求三级目录，二级id："+MyPublicData.levelSond.get(level2).getSelfId());
+
+		getThirdDate(selectSecondId,MyPublicData.levelReThird.get(position).getSelfId());
+	}
+
+	/**
+	 * 点击的第二级item
+	 * */
+	private void clickSecond(int position) {
+		Log.d(TAGMAIN,"=============2222222222222>>>>>>>>>>>点击"+position);
+		level2 = position;
+		tv_selece_sub.setTextColor(Color.GREEN);
+		lv_level_third_re.setVisibility(View.VISIBLE);
+		lv_level_third.setVisibility(View.GONE);
+		lv_level_first.setVisibility(View.GONE);
+
+		//请求二级目录
+		Log.e(TAGMAIN, "请求三级目录，二级id："+MyPublicData.levelSond.get(level2).getSelfId());
+
+		selectSecond = MyPublicData.levelSond.get(level2).getConn();
+		selectConn =selectRoot + "  "+ selectSecond;
+		tv_selece_sub.setText(selectConn);
+
+		selectSecondId = MyPublicData.levelSond.get(level2).getSelfId();
+
+		getReThirdDate();
+	}
+
+	/**
+	 * 点击的是第一级item
+	 *
+	 * @param position
+	 * */
+	private void clickFirst(int position) {
+		level1 = position;
+		Log.d(TAGMAIN,"=============>>>>>>>>>>>点击一级listView");
+		if(position == 0){
+			Log.d(TAGMAIN,"=============>>>>>>>>>>>点击我的位置");
+			showSlefPos();
+		}else{
+			NoSearchSta = false;
+			Log.d(TAGMAIN,"=============1111111111111>>>>>>>>>>>点击"+position);
+			//					View v=parent.getChildAt(position);
+			//					v.setBackgroundColor(Color.GRAY);
+			selectConn = MyPublicData.levelFirst.get(position).getConn();
+			tv_selece_sub.setTextColor(Color.GREEN);
+			tv_selece_sub.setText(selectConn);
+
+			ll_selece_dis.setVisibility(View.VISIBLE);
+			lv_level_third.setVisibility(View.GONE);
+			lv_level_second.setVisibility(View.VISIBLE);
+
+			selectRoot = MyPublicData.levelFirst.get(level1).getConn();
+			selectConn = selectRoot;
+			tv_selece_sub.setText(selectConn);
+
+			//请求二级目录
+			Log.e(TAGMAIN, "请求二级目录，一级id："+MyPublicData.levelFirst.get(level1).getSelfId());
+			getSecondDataSQL(MyPublicData.levelFirst.get(level1).getSelfId());
+		}
 	}
 }
