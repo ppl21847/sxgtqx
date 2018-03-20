@@ -368,7 +368,7 @@ public class DbLocHelper extends SQLiteOpenHelper {
 			while (cursor.moveToNext()) {
 				info= new LevelThird(
 						cursor.getString(cursor.getColumnIndex("fatherId")),
-						cursor.getString(cursor.getColumnIndex("fatherReId")),
+						"",
 						cursor.getString(cursor.getColumnIndex("Id")),
 						cursor.getString(cursor.getColumnIndex("Name")),
 						cursor.getInt(cursor.getColumnIndex("level")),
@@ -381,7 +381,7 @@ public class DbLocHelper extends SQLiteOpenHelper {
 			cursor.close();
 		} catch (Exception e) {
 			// TODO: handle exception
-			Log.e(TAG, "getThird selfId: "+selfId+" Exception");
+			Log.e(TAG, "getThird selfId: "+selfId+" Exception，"+e.getMessage());
 		}
 
 		return info;

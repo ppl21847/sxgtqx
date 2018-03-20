@@ -135,6 +135,13 @@ public class MyPublicData {
 					Log.e(TAG, "数据库没有三级地址数据");
 					Log.e(TAG, "向本地数据库添加"+data.size()+"条，三级数据");
 					for(int i=0;i<data.size();i++){
+						/**
+						 * String fatherId, String fatherReId,
+						 * String iD, String name,
+						 int level, String info,
+						 double posLat, double posLong,
+						 String imgPath
+						 * */
 						LevelThird tmpData = new LevelThird(data.get(i).getFatherId(),data.get(i).getFatherReId(),
 								data.get(i).getObjectId(), data.get(i).getConn(), 2,
 								data.get(i).getInfo(), data.get(i).getPosLat(),
