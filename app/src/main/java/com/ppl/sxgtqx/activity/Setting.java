@@ -77,7 +77,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 	MainSprinAdapter adapterPos;
 	List<ConnType>fristData,secondData,reThirdData;
 	List<ConnType>posData;
-	String fatherIdFirst,fatherIdSecond;
+	String fatherIdFirst,fatherIdSecond,reFatherId;
 
 	//离线下载城市
 	List<MapCityInfo>cityData;
@@ -285,6 +285,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 						Intent intent = new Intent(getApplicationContext(), NewSubLoc.class);
 						intent.putExtra("NEW", true);
 						Log.e(TAG, "父级ID: "+fatherIdSecond);
+						intent.putExtra("reFatherId",reFatherId);
 						intent.putExtra("fatherId", fatherIdSecond);
 						startActivity(intent);
 					}
@@ -348,6 +349,8 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 		}else if(posData.get(position).getLevel() == 1){
 			fatherIdSecond = posData.get(position).getSelfId();
 			Log.e(TAG,"点击的二级：Id: "+ fatherIdSecond+",内容： "+posData.get(position).getConn());
+		} else if (posData.get(position).getLevel() == 3) {
+			reFatherId = posData.get(position).getSelfId();
 		}
 		switch (v.getId()) {
 			case R.id.ib_item_add:
@@ -548,6 +551,7 @@ public class Setting extends Activity implements OnClickListener,MKOfflineMapLis
 		Intent intent = new Intent(getApplicationContext(), NewSubLoc.class);
 		intent.putExtra("NEW", false);
 		intent.putExtra("SELFID", selfId);
+		intent.putExtra("reFatherId",reFatherId);
 		intent.putExtra("LOCALIMG", "noPic");
 		startActivity(intent);
 	}

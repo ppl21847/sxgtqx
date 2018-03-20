@@ -89,7 +89,7 @@
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
         <activity
-            android:name="activity.NewSubLoc"
+            android:name=".activity.NewSubLoc"
             android:theme="@android:style/Theme.NoTitleBar"
             android:windowSoftInputMode="adjustPan|stateHidden" >
         </activity>

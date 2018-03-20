@@ -110,7 +110,7 @@
                 android:padding="3dp"
                 android:textSize="@dimen/ed_sub_info" />
 
-            <view.MyGridView
+            <com.ppl.sxgtqx.view.MyGridView
                 android:id="@+id/noScrollgridview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

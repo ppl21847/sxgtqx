@@ -362,13 +362,13 @@ public class DbLocHelper extends SQLiteOpenHelper {
 		try {
 			//Cursor对象返回查询结果
 			Cursor cursor = db.query(LEVEL_THIRD_NAME,
-					new String[]{"Id","Name","level","info","posLat","posLong","imgPath","fatherId"},
+					new String[]{"Id","Name","level","info","posLat","posLong","imgPath","fatherId","fatherReId"},
 					"Id=?",new String[]{selfId+""}, null, null, null, null);
 			Log.e("DB", "查找结果有： "+cursor.getCount()+" 条");
 			while (cursor.moveToNext()) {
 				info= new LevelThird(
 						cursor.getString(cursor.getColumnIndex("fatherId")),
-						"",
+						cursor.getString(cursor.getColumnIndex("fatherReId")),
 						cursor.getString(cursor.getColumnIndex("Id")),
 						cursor.getString(cursor.getColumnIndex("Name")),
 						cursor.getInt(cursor.getColumnIndex("level")),

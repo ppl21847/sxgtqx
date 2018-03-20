@@ -106,6 +106,7 @@ public class NewSubLoc extends Activity implements OnClickListener{
 	private MapView bdmp_self_pos;
 	private BaiduMap selfBDMP;
 	double lat=0,longPos=0;
+	double upLat,upLong;
 	
 	//保存
 	TextView ib_save_sub_info;
@@ -119,6 +120,7 @@ public class NewSubLoc extends Activity implements OnClickListener{
 	List<String>localImg;	//本地图片
 	ProgressDialog upPD;
 	String fatherId;
+	String reFatherId;
 	boolean newSub = true;			//true-新建一个变电所信息     false-编辑变电所信息
 	String selfId;
 	LevelThird editData;
@@ -127,6 +129,8 @@ public class NewSubLoc extends Activity implements OnClickListener{
 	MyToast myToast;
 	
 	private LocationService locService;
+	private boolean selectPosSta = false;		//用选择的位置
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -142,9 +146,10 @@ public class NewSubLoc extends Activity implements OnClickListener{
 		
 		if(newSub){
 			Log.e(TAG, "新建变电所信息");
-			lat = getIntent().getDoubleExtra("Lat", 0);
-			longPos = getIntent().getDoubleExtra("Long", 0);
+			upLat = getIntent().getDoubleExtra("Lat", 0);
+			upLong = getIntent().getDoubleExtra("Long", 0);
 			fatherId = getIntent().getStringExtra("fatherId");
+			reFatherId = getIntent().getStringExtra("reFatherId");
 			Log.e(TAG, "fatherId: "+fatherId);
 		}else{
 			Log.e(TAG, "编辑变电所信息");
@@ -158,9 +163,10 @@ public class NewSubLoc extends Activity implements OnClickListener{
 								editData.getPosLong(), 
 								1);
 			Log.e(TAG, "要编辑的变电所信息: "+editData.toString());
-			lat = editData.getPosLat();
-			longPos = editData.getPosLong();
+			upLat = editData.getPosLat();
+			upLong = editData.getPosLong();
 			fatherId = editData.getFatherId();
+			reFatherId = editData.getFatherReId();
 			String localImgPath = getIntent().getStringExtra("LOCALIMG");
 			Log.e(TAG, "localImgPath: "+localImgPath);
 			if(!localImgPath.equals("noPic")){
@@ -200,6 +206,9 @@ public class NewSubLoc extends Activity implements OnClickListener{
 			
 			@Override
 			public void onMapClick(LatLng point) {
+				Log.d(TAG,"点击了地图");
+				Log.d(TAG,"地点是： "+point.latitude+", "+point.longitude);
+				selectPosSta = true;
 				lat=point.latitude;
 				longPos=point.longitude;
 				setSlefPos(point.latitude, point.longitude);
@@ -230,20 +239,7 @@ public class NewSubLoc extends Activity implements OnClickListener{
 				lat = location.getLatitude();
 				longPos = location.getLongitude();
 
-
-//				Message locMsg = locHander.obtainMessage();
-//				Bundle locData;
-//				LatLng tmpPos = new LatLng( locData.getDouble("Latitude"),locData.getDouble("Longitude"));
-//
-//				if(showSelfPos){
-//					if (locData != null) {
-//						locMsg.what = CHANGE_SELF_POS;
-//						locData.putParcelable("loc", location);
-//						locMsg.setData(locData);
-//						locHander.sendMessage(locMsg);
-//					}
-//				}
-
+				Log.d(TAG,"定位结果，Lat： "+lat+",long:"+longPos);
 			}
 		}
 	};
@@ -348,10 +344,10 @@ public class NewSubLoc extends Activity implements OnClickListener{
 	}
 
 	private void setMapCenter() {
-		if(lat == 0 || longPos==0){
+		if(upLat == 0 || upLong==0){
 			return;
 		}else{
-			setSlefPos(lat, longPos);
+			setSlefPos(upLat, upLong);
 		}
 	}
 
@@ -447,6 +443,7 @@ public class NewSubLoc extends Activity implements OnClickListener{
 			}
 			break;
 		case R.id.ib_selp_pos:
+			selectPosSta = true;
 			setSlefPos(MyPublicData.selfLatitude, MyPublicData.selfLongitude);
 			break;
 		case R.id.ib_save_sub_info:
@@ -502,6 +499,10 @@ public class NewSubLoc extends Activity implements OnClickListener{
 	 * */
 	private void saveNewSub() {
 		savaInfo.setFatherId(fatherId);
+		savaInfo.setFatherReId(reFatherId);
+		upLat = lat;
+		upLong = longPos;
+		Log.d(TAG,"lat:"+lat+",long: "+longPos);
 		savaInfo.setPosLat(lat);
 		savaInfo.setPosLong(longPos);
 		savaInfo.setInfo(et_sub_info.getText().toString().trim());
@@ -523,9 +524,10 @@ public class NewSubLoc extends Activity implements OnClickListener{
 		savaInfo.setValue("delSta", 1);
 		savaInfo.setValue("conn", savaInfo.getConn());
 		savaInfo.setValue("fatherId", fatherId);
+		savaInfo.setValue("fatherReId",reFatherId);
 		savaInfo.setValue("netImgsPath", savaInfo.getNetImgsPath());
-		savaInfo.setValue("posLat", lat);
-		savaInfo.setValue("posLong", longPos);
+		savaInfo.setValue("posLat", upLat);
+		savaInfo.setValue("posLong", upLong);
 		savaInfo.setValue("info", et_sub_info.getText().toString().trim());
 		
 		savaInfo.update(editData.getID(), new UpdateListener() {
@@ -541,6 +543,7 @@ public class NewSubLoc extends Activity implements OnClickListener{
 					//保存至本地数据库
 					LevelThird newData = new LevelThird();
 					newData.setFatherId(fatherId);
+					newData.setFatherReId(reFatherId);
 					newData.setID(editData.getID());
 					newData.setImgPath(savaInfo.getNetImgsPath());
 					newData.setInfo(savaInfo.getInfo());
@@ -574,6 +577,7 @@ public class NewSubLoc extends Activity implements OnClickListener{
 					//保存至本地数据库
 					LevelThird newData = new LevelThird();
 					newData.setFatherId(fatherId);
+					newData.setFatherReId(reFatherId);
 					newData.setID(objectId);
 					newData.setImgPath(savaInfo.getNetImgsPath());
 					newData.setInfo(savaInfo.getInfo());
@@ -752,7 +756,6 @@ public class NewSubLoc extends Activity implements OnClickListener{
 		selfBDMP.clear();
 		selfBDMP.addOverlay(option);
 		selfBDMP.setMapStatus(MapStatusUpdateFactory.newLatLng(point));
-		
 	}
 
 	private void AlertWarnning() {
