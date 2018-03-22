@@ -72,6 +72,7 @@ import com.ppl.sxgtqx.utils.LevelThird;
 import com.ppl.sxgtqx.utils.LocationEntity;
 import com.ppl.sxgtqx.utils.LogcatHelper;
 import com.ppl.sxgtqx.utils.MyPublicData;
+import com.ppl.sxgtqx.utils.OrderThirdData;
 import com.ppl.sxgtqx.utils.UpdateEntity;
 import com.ppl.sxgtqx.view.MyToast;
 import com.ppl.sxgtqx.view.UpdataAlertDialog;
@@ -539,15 +540,27 @@ import cn.bmob.v3.listener.QueryListener;
 		Log.e(TAGMAIN, "获取三级目录内容数据大小:"+tmpData.size());
 		MyPublicData.levelThird.clear();
 
+		List<ConnType>temLevelThird = new ArrayList<>();
+
 		for(int i=0;i<tmpData.size();i++){
 			Log.e(TAGMAIN, tmpData.get(i).toString());
-			MyPublicData.levelThird.add(new ConnType(1, 2, 1,
+			temLevelThird.add(new ConnType(1, 2, 1,
 					tmpData.get(i).getName(),
 					tmpData.get(i).getFatherId(),
 					tmpData.get(i).getID(),
 					tmpData.get(i).getPosLat(),
 					tmpData.get(i).getPosLong(),tmpData.get(i).getInfo()));
 		}
+
+		List<ConnType>softLevelThird = new ArrayList<>();
+		softLevelThird = OrderThirdData.orderThirdData(temLevelThird);
+
+		if(softLevelThird != null && softLevelThird.size() != 0){
+			for(ConnType tmpThird : softLevelThird){
+				MyPublicData.levelThird.add(tmpThird);
+			}
+		}
+
 		Log.e(TAGMAIN, "新的三级目录下个数:"+MyPublicData.levelThird.size());
 		locHander.sendEmptyMessage(NOTIFY_THRID_ADP);
 	}
