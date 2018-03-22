@@ -49,7 +49,7 @@ public class MainPermissionActivity extends Activity implements View.OnClickList
             dirFile.mkdir();        //创建文件夹
         }
 
-        updateFile = new File(dirFile + File.separator + "sxgtqx-v2-20180322-1001.apk");
+        updateFile = new File(dirFile + File.separator + "sxgtqx-v4-20180322-2052.apk");
 
         initView();
 

@@ -75,7 +75,7 @@ public class DownFile {
                         Message msgDownCompletes = new Message();
                         msgDownCompletes.what = FILE_DOWN_COMPLETED;
                         Log.d("downFile","completed");
-                        msgDownCompletes.obj = newApk.getAbsoluteFile();
+                        msgDownCompletes.obj = newApk.getAbsolutePath();
                         mHandler.sendMessage(msgDownCompletes);
                     }
 

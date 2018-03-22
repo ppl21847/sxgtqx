@@ -517,6 +517,13 @@ import cn.bmob.v3.listener.QueryListener;
 	 * 获取新的第三级数据显示
 	 * */
 	private void getReThirdDate() {
+		//二级显示在左侧，需要显示返回功能
+		MyPublicData.levelSond.add(new ConnType(1, 1,
+				"返回上一级",
+				"",
+				"",1));
+		locHander.sendEmptyMessage(NOTIFY_SECOND_ADP);
+
 		List<LevelReThird>tempData = dbHelper.getReThirdData();
 		Log.e(TAGMAIN, "获取新的三级目录内容数据大小:"+tempData.size());
 		MyPublicData.levelReThird.clear();
@@ -535,9 +542,17 @@ import cn.bmob.v3.listener.QueryListener;
 	 * 从数据库获取三级目录数据
 	 * */
 	protected void getThirdDate(String fatherId, String reThird) {
+		//新添加的第三级在左侧  需要返回按键
+		MyPublicData.levelReThird.add(new ConnType(1, 3,
+				"返回上一级",
+				"",
+				"",1));
+		locHander.sendEmptyMessage(NOTIFY_RE_THRID_ADP);
+
 		Log.d(TAGMAIN,"fatherId: "+fatherId+", reThird: "+reThird);
 		List<LevelThird>tmpData = dbHelper.getThirdData(fatherId,reThird);
 		Log.e(TAGMAIN, "获取三级目录内容数据大小:"+tmpData.size());
+
 		MyPublicData.levelThird.clear();
 
 		List<ConnType>temLevelThird = new ArrayList<>();
@@ -1081,20 +1096,32 @@ import cn.bmob.v3.listener.QueryListener;
 	private void clickReThird(int position) {
 		Log.d(TAGMAIN,"=============r3r3r3r3r>>>>>>>>>>>点击"+position);
 		levelRe3 = position;
-		tv_selece_sub.setTextColor(Color.GREEN);
-		lv_level_third_re.setVisibility(View.VISIBLE);
-		lv_level_third.setVisibility(View.VISIBLE);
-		lv_level_first.setVisibility(View.GONE);
-		lv_level_second.setVisibility(View.GONE);
 
-		selectReThird = MyPublicData.levelReThird.get(position).getConn();
-		selectConn =selectRoot +"  "+selectSecond+" "+ selectReThird;
-		tv_selece_sub.setText(selectConn);
+		if("返回上一级".equalsIgnoreCase(MyPublicData.levelReThird.get(position).getConn())){
+			lv_level_third_re.setVisibility(View.VISIBLE);
+			lv_level_third.setVisibility(View.GONE);
+			lv_level_first.setVisibility(View.GONE);
+			lv_level_second.setVisibility(View.VISIBLE);
+			MyPublicData.levelReThird.remove(MyPublicData.levelReThird.size()-1);
+			locHander.sendEmptyMessage(NOTIFY_RE_THRID_ADP);
+			selectConn =selectRoot + "  "+ selectSecond;
+			tv_selece_sub.setText(selectConn);
+		}else {
+			tv_selece_sub.setTextColor(Color.GREEN);
+			lv_level_third_re.setVisibility(View.VISIBLE);
+			lv_level_third.setVisibility(View.VISIBLE);
+			lv_level_first.setVisibility(View.GONE);
+			lv_level_second.setVisibility(View.GONE);
 
-		//请求二级目录
-		Log.e(TAGMAIN, "请求三级目录，二级id："+MyPublicData.levelSond.get(level2).getSelfId());
+			selectReThird = MyPublicData.levelReThird.get(position).getConn();
+			selectConn = selectRoot + "  " + selectSecond + " " + selectReThird;
+			tv_selece_sub.setText(selectConn);
 
-		getThirdDate(selectSecondId,MyPublicData.levelReThird.get(position).getSelfId());
+			//请求二级目录
+			Log.e(TAGMAIN, "请求三级目录，二级id：" + MyPublicData.levelSond.get(level2).getSelfId());
+
+			getThirdDate(selectSecondId, MyPublicData.levelReThird.get(position).getSelfId());
+		}
 	}
 
 	/**
@@ -1102,22 +1129,34 @@ import cn.bmob.v3.listener.QueryListener;
 	 * */
 	private void clickSecond(int position) {
 		Log.d(TAGMAIN,"=============2222222222222>>>>>>>>>>>点击"+position);
-		level2 = position;
-		tv_selece_sub.setTextColor(Color.GREEN);
-		lv_level_third_re.setVisibility(View.VISIBLE);
-		lv_level_third.setVisibility(View.GONE);
-		lv_level_first.setVisibility(View.GONE);
 
-		//请求二级目录
-		Log.e(TAGMAIN, "请求三级目录，二级id："+MyPublicData.levelSond.get(level2).getSelfId());
 
-		selectSecond = MyPublicData.levelSond.get(level2).getConn();
-		selectConn =selectRoot + "  "+ selectSecond;
-		tv_selece_sub.setText(selectConn);
+		if("返回上一级".equalsIgnoreCase(MyPublicData.levelSond.get(position).getConn())){
+			lv_level_third_re.setVisibility(View.GONE);
+			lv_level_third.setVisibility(View.GONE);
+			lv_level_first.setVisibility(View.VISIBLE);
+			MyPublicData.levelSond.remove(MyPublicData.levelSond.size()-1);
+			locHander.sendEmptyMessage(NOTIFY_SECOND_ADP);
+			selectConn =selectRoot;
+			tv_selece_sub.setText(selectConn);
+		}else{
+			level2 = position;
+			tv_selece_sub.setTextColor(Color.GREEN);
+			lv_level_third_re.setVisibility(View.VISIBLE);
+			lv_level_third.setVisibility(View.GONE);
+			lv_level_first.setVisibility(View.GONE);
 
-		selectSecondId = MyPublicData.levelSond.get(level2).getSelfId();
+			//请求二级目录
+			Log.e(TAGMAIN, "请求三级目录，二级id："+MyPublicData.levelSond.get(level2).getSelfId());
 
-		getReThirdDate();
+			selectSecond = MyPublicData.levelSond.get(level2).getConn();
+			selectConn =selectRoot + "  "+ selectSecond;
+			tv_selece_sub.setText(selectConn);
+
+			selectSecondId = MyPublicData.levelSond.get(level2).getSelfId();
+
+			getReThirdDate();
+		}
 	}
 
 	/**
