@@ -173,11 +173,11 @@ import cn.bmob.v3.listener.QueryListener;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
+		checkPermissions(needPermissions);
 		super.onCreate(savedInstanceState);
 
 		activityList.add(this);
 
-		checkPermissions(needPermissions);
 		setContentView(R.layout.activity_main);
 
 		initDataSQL();

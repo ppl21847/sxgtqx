@@ -14,13 +14,26 @@ public class ImageItem {
 	public String imagePath;
 	public Bitmap bmp;
 	public boolean isSelected = false;
-	
+	boolean isNewDown = true;
+
 	public ImageItem() {
 		super();
 	}
 	public ImageItem(String imagePath) {
 		super();
 		this.imagePath = imagePath;
+	}
+
+	public ImageItem(String imagePath, boolean isNewDown) {
+		super();
+		this.imagePath = imagePath;
+		this.isNewDown = isNewDown;
+	}
+	public boolean isNewDown() {
+		return isNewDown;
+	}
+	public void setNewDown(boolean isNewDown) {
+		this.isNewDown = isNewDown;
 	}
 	public Bitmap getBmp() {
 		return bmp;
