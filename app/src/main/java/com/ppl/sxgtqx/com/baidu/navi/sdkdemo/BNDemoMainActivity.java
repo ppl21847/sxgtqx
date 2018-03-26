@@ -518,11 +518,13 @@ import cn.bmob.v3.listener.QueryListener;
 	 * */
 	private void getReThirdDate() {
 		//二级显示在左侧，需要显示返回功能
-		MyPublicData.levelSond.add(new ConnType(1, 1,
-				"返回上一级",
-				"",
-				"",1));
-		locHander.sendEmptyMessage(NOTIFY_SECOND_ADP);
+		if(MyPublicData.levelSond != null && !MyPublicData.levelSond.get(MyPublicData.levelSond.size()-1).getConn().equalsIgnoreCase("返回上一级")){
+			MyPublicData.levelSond.add(new ConnType(1, 1,
+					"返回上一级",
+					"",
+					"",1));
+			locHander.sendEmptyMessage(NOTIFY_SECOND_ADP);
+		}
 
 		List<LevelReThird>tempData = dbHelper.getReThirdData();
 		Log.e(TAGMAIN, "获取新的三级目录内容数据大小:"+tempData.size());
@@ -543,11 +545,13 @@ import cn.bmob.v3.listener.QueryListener;
 	 * */
 	protected void getThirdDate(String fatherId, String reThird) {
 		//新添加的第三级在左侧  需要返回按键
-		MyPublicData.levelReThird.add(new ConnType(1, 3,
-				"返回上一级",
-				"",
-				"",1));
-		locHander.sendEmptyMessage(NOTIFY_RE_THRID_ADP);
+		if(MyPublicData.levelReThird != null && (!MyPublicData.levelReThird.get(MyPublicData.levelReThird.size()-1).getConn().equalsIgnoreCase("返回上一级"))){
+			MyPublicData.levelReThird.add(new ConnType(1, 3,
+					"返回上一级",
+					"",
+					"",1));
+			locHander.sendEmptyMessage(NOTIFY_RE_THRID_ADP);
+		}
 
 		Log.d(TAGMAIN,"fatherId: "+fatherId+", reThird: "+reThird);
 		List<LevelThird>tmpData = dbHelper.getThirdData(fatherId,reThird);
