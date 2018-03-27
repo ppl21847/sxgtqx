@@ -70,6 +70,7 @@ import com.ppl.sxgtqx.utils.FileUtils;
 import com.ppl.sxgtqx.utils.LevelThird;
 import com.ppl.sxgtqx.utils.MyPublicData;
 import com.ppl.sxgtqx.utils.ProgressDia;
+import com.ppl.sxgtqx.view.AuthPosAlertDialog;
 import com.ppl.sxgtqx.view.MyGridView;
 import com.ppl.sxgtqx.view.MyToast;
 
@@ -82,6 +83,7 @@ public class NewSubLoc extends Activity implements OnClickListener{
 	public static final int GRIDVIEW_SCALE = 3;
 	protected static final int GET_DATA_FAUIL = 16;
 	protected static final int NOTIFY_GRIDVIEW = 17;
+	private static final int TOAST_NO_POS = 20;
 	MyGridView picGridView;
 	ImageButton ib_back;		//后退键
 	boolean backSta = true;		//是否已修改信息
@@ -107,7 +109,7 @@ public class NewSubLoc extends Activity implements OnClickListener{
 	private MapView bdmp_self_pos;
 	private BaiduMap selfBDMP;
 	double lat=0,longPos=0;
-	double latEdit = 0,longEdit = 0;
+	double latEdit = 0.0,longEdit = 0.0;
 
 	//保存
 	TextView ib_save_sub_info;
@@ -129,7 +131,8 @@ public class NewSubLoc extends Activity implements OnClickListener{
 	MyToast myToast;
 	boolean saveEnable = true;
 
-	private LocationService locService;
+	private boolean selectPosSta = false;		//点击地图或者点击定位 更新地图坐标
+	private boolean clickSelfpos = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -151,6 +154,8 @@ public class NewSubLoc extends Activity implements OnClickListener{
 			fatherId = getIntent().getStringExtra("fatherId");
 			reFatherId = getIntent().getStringExtra("reFatherId");
 			Log.e(TAG, "fatherId: "+fatherId+",reFatherId:  "+reFatherId);
+			latEdit = 0.0;
+			longEdit = 0.0;
 		}else{
 			Log.e(TAG, "编辑变电所信息");
 			selfId = getIntent().getStringExtra("SELFID");
@@ -193,20 +198,13 @@ public class NewSubLoc extends Activity implements OnClickListener{
 
 			@Override
 			public void onMapClick(LatLng point) {
+				selectPosSta = true;
 				lat=point.latitude;
 				longPos=point.longitude;
-				Log.e("setlocation", "lat: "+lat+",longPos: "+longPos);
+				Log.e("location", "lat: "+lat+",longPos: "+longPos);
 				setSlefPos(point.latitude, point.longitude);
 			}
 		});
-
-		locService = ((LocationApplication) getApplication()).locationService;
-		LocationClientOption mOption = locService.getDefaultLocationClientOption();
-		mOption.setLocationMode(LocationClientOption.LocationMode.Battery_Saving);
-		mOption.setCoorType("bd09ll");
-		locService.setLocationOption(mOption);
-		locService.registerListener(listener);
-		locService.start();
 	}
 	/***
 	 * 定位结果回调，在此方法中处理定位结果
@@ -224,11 +222,14 @@ public class NewSubLoc extends Activity implements OnClickListener{
 				lat = location.getLatitude();
 				longPos = location.getLongitude();
 				Log.e("location", "lat: "+lat+",longPos: "+longPos);
+				if(clickSelfpos){
+					Log.e("location", "定位当前位置："+"lat: "+lat+",longPos: "+longPos);
+					setMapCenter();
+				}
 			}
 		}
 
 	};
-	private boolean selfPosSta = false;
 	/**
 	 * 获取服务器上变电所图片
 	 * */
@@ -442,8 +443,13 @@ public class NewSubLoc extends Activity implements OnClickListener{
 				}
 				break;
 			case R.id.ib_selp_pos:
-				selfPosSta  = true;
-				setSlefPos(MyPublicData.selfLatitude,MyPublicData.selfLongitude);
+				clickSelfpos = true;
+				selectPosSta = true;
+				if(lat == 0.0 || longPos == 0.0){
+					lat = MyPublicData.selfLatitude;
+					longPos = MyPublicData.selfLongitude;
+				}
+				setSlefPos(lat,longPos);
 				break;
 			case R.id.ib_save_sub_info:
 				if(saveEnable){
@@ -462,44 +468,77 @@ public class NewSubLoc extends Activity implements OnClickListener{
 	 * 保存新的位置
 	 * */
 	private void saveNewLoc() {
-		String newName = et_sub_name.getText().toString().trim();
+		final String newName = et_sub_name.getText().toString().trim();
 		if(newName.length() == 0){
 			//新建变电所名字为空
 			//提示  新建名称不能为空
 			alertWarnning();
 			Log.e("save", "新建名称为空");
 		}else{
-			Log.e("save", "正在上传至服务器。。。");
-			ProgressDia.showLoadingDialog(NewSubLoc.this, "正在上传数据，请等待", false);
-
-			savaInfo.setConn(newName);
-			savaInfo.setDelSta(1);
-			savaInfo.setLevel(2);
-			if(arrySelectImg.size() == 0){
-				//没有图片直接保存位置与信息
-				new Thread(
-						new Runnable() {
-
-							@Override
-							public void run() {
-								// TODO Auto-generated method stub
-								Log.e("save", "图片为空，开始上传内容");
-								saveNewSub();
-							}
-						}).start();
-			}else{
-				//先上传图片信息
-				Log.e("save", "图片不为空，开始上传图片");
-				saveImgs();
+			if(selectPosSta){
+				latEdit = lat;
+				longEdit = longPos;
 			}
+
+			if(latEdit == 0.0 || longEdit == 0.0){
+				handler.sendEmptyMessage(TOAST_NO_POS);
+				return;
+			}
+
+			setMapCenter();
+
+			final AuthPosAlertDialog authPosAlertDialog = new AuthPosAlertDialog(NewSubLoc.this);
+			authPosAlertDialog.setCancleButton(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					authPosAlertDialog.dismiss();
+				}
+			});
+			authPosAlertDialog.setOkButton(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					updataInfo(newName);
+					authPosAlertDialog.dismiss();
+				}
+			});
+			authPosAlertDialog.show();
 		}
 
+	}
+
+	private void updataInfo(String newName) {
+		Log.e("save", "正在上传至服务器。。。");
+		ProgressDia.showLoadingDialog(NewSubLoc.this, "正在上传数据，请等待", false);
+
+		savaInfo.setConn(newName);
+		savaInfo.setDelSta(1);
+		savaInfo.setLevel(2);
+		if(arrySelectImg.size() == 0){
+			//没有图片直接保存位置与信息
+			new Thread(
+					new Runnable() {
+
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							Log.e("save", "图片为空，开始上传内容");
+							saveNewSub();
+						}
+					}).start();
+		}else{
+			//先上传图片信息
+			Log.e("save", "图片不为空，开始上传图片");
+			saveImgs();
+		}
 	}
 
 	/**
 	 * 将新的变电所信息保存至服务器
 	 * */
 	private void saveNewSub() {
+		savaInfo.setValue("posLat", latEdit);
+		savaInfo.setValue("posLong", longEdit);
+
 		savaInfo.setFatherId(fatherId);
 		savaInfo.setFatherReId(reFatherId);
 		savaInfo.setPosLat(lat);
@@ -525,13 +564,9 @@ public class NewSubLoc extends Activity implements OnClickListener{
 		savaInfo.setValue("fatherId", fatherId);
 		savaInfo.setValue("fatherReId", reFatherId);
 		savaInfo.setValue("netImgsPath", savaInfo.getNetImgsPath());
-		if(selfPosSta){
-			savaInfo.setValue("posLat", lat);
-			savaInfo.setValue("posLong", longPos);
-		}else{
-			savaInfo.setValue("posLat", latEdit);
-			savaInfo.setValue("posLong", longEdit);
-		}
+
+		savaInfo.setValue("posLat", latEdit);
+		savaInfo.setValue("posLong", longEdit);
 
 		savaInfo.setValue("info", et_sub_info.getText().toString().trim());
 		Log.e("updata","更新数据是： "+savaInfo.toString());
@@ -729,6 +764,8 @@ public class NewSubLoc extends Activity implements OnClickListener{
 				picAdapter.notifyDataSetChanged();
 			}else if(SET_POS == msg.what){
 				setSlefPos(latEdit,longEdit);
+			}else if(TOAST_NO_POS == msg.what){
+				myToast.show("请先选择地图位置");
 			}
 
 		}
@@ -777,8 +814,6 @@ public class NewSubLoc extends Activity implements OnClickListener{
 		// TODO Auto-generated method stub
 		super.onDestroy();
 		//		bdmp_self_pos.onDestroy();
-		locService.unregisterListener(listener);
-		locService.stop();
 		handler.removeCallbacksAndMessages(null);
 	}
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
